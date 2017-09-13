@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">LinearLayout</string>
+    <string name="title_activity_linear_layout_vertical">LinearLayoutVerticalActivity</string>
+    <string name="title_activity_linear_layout_horizontal">LinearLayoutHorizontalActivity</string>
+    <string name="title_activity_table_layout">TableLayoutActivity</string>
+    <string name="title_activity_grid_layout">GridLayoutActivity</string>
+    <string name="title_activity_main2">Main2Activity</string>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+   orientation vertical define que as Views filhas ficarão em linhas
+   background define a cor de dentro de uma View
+   textSize define o tamanho da fonte de uma TextView
+   textColor define a cor do texto
+   padding define a distância entre o texto e a borda da View
+   layout_margin define a distância ou margem entre a View pai e a View filha
+   -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#b20000"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="#0015b2"
+        android:padding="10dp"
+        android:text="UFC"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="#0015b2"
+        android:padding="10dp"
+        android:text="Quixadá"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:background="#0015b2"
+        android:padding="15dp"
+        android:text="Campus"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+</LinearLayout>
+

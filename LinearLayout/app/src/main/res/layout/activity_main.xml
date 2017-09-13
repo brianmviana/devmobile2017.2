@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000"
+    android:gravity="center">
+
+    <Button
+        android:id="@+id/buttonVertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Layout Vertical"
+        android:textColor="#ffffff"
+        android:onClick="vertical"/>
+
+    <Button
+        android:id="@+id/buttonHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Layout Horizontal"
+        android:textColor="#ffffff"
+        android:onClick="horizontal"/>
+
+    <Button
+        android:id="@+id/buttonPesos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="Views com Pesos"
+        android:textColor="#ffffff"
+        android:onClick="pesos"/>
+</LinearLayout>

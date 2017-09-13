@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   O tamanho 0dp em altura ou largura só podem ser usados com
+   o atributo layout_weight, caso o contrário a view
+   não aparecerá na tela.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/darker_gray"
+        android:text="Android 1"
+        android:textSize="36sp"
+        android:layout_weight = "1"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/darker_gray"
+        android:text="Android 2"
+        android:textSize="36sp"
+        android:layout_weight = "1"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/darker_gray"
+        android:text="Android 3"
+        android:textSize="36sp"
+        android:layout_weight = "1"/>
+
+</LinearLayout>
