@@ -1,0 +1,51 @@
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:rowCount="2"
+    android:columnCount="2"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="#11ddbb"
+        android:padding="20dp"
+        android:text="Item 01"
+        android:textColor="@android:color/black"
+        android:textSize="36sp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="#cc23bb"
+        android:padding="20dp"
+        android:text="Item 02"
+        android:textColor="@android:color/black"
+        android:textSize="36sp"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="#1123bb"
+        android:padding="20dp"
+        android:text="Item 03"
+        android:textColor="@android:color/black"
+        android:textSize="36sp"
+        android:layout_rowWeight="1"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:background="#ff2300"
+        android:padding="20dp"
+        android:text="Item 04"
+        android:textColor="@android:color/black"
+        android:textSize="36sp"
+        android:layout_columnWeight="1"
+        />
+</GridLayout>

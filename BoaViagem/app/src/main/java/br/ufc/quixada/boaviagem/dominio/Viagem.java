@@ -1,0 +1,90 @@
+package br.ufc.quixada.boaviagem.dominio;
+
+import java.util.Date;
+
+import br.ufc.quixada.boaviagem.enums.TipoViagem;
+
+/**
+ * Created by Anibal on 21/09/2017.
+ */
+
+public class Viagem {
+    private Long id;
+    private String destino;
+    private TipoViagem tipoViagem;
+    private Date dataChegada;
+    private Date dataSaida;
+    private Double orcamento;
+    private Integer quantidadePessoas;
+
+
+    public Viagem() {
+    }
+
+    public Viagem(Long id, String destino, TipoViagem tipoViagem, Date dataChegada,
+                  Date dataSaida, Double orcamento, Integer quantidadePessoas) {
+        this.id = id;
+        this.destino = destino;
+        this.tipoViagem = tipoViagem;
+        this.dataChegada = dataChegada;
+        this.dataSaida = dataSaida;
+        this.orcamento = orcamento;
+        this.quantidadePessoas = quantidadePessoas;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getDestino() {
+        return destino;
+    }
+
+    public void setDestino(String destino) {
+        this.destino = destino;
+    }
+
+    public TipoViagem getTipoViagem() {
+        return tipoViagem;
+    }
+
+    public void setTipoViagem(TipoViagem tipoViagem) {
+        this.tipoViagem = tipoViagem;
+    }
+
+    public Date getDataChegada() {
+        return dataChegada;
+    }
+
+    public void setDataChegada(Date dataChegada) {
+        this.dataChegada = dataChegada;
+    }
+
+    public Date getDataSaida() {
+        return dataSaida;
+    }
+
+    public void setDataSaida(Date dataSaida) {
+        this.dataSaida = dataSaida;
+    }
+
+    public Double getOrcamento() {
+        return orcamento;
+    }
+
+    public void setOrcamento(Double orcamento) {
+        this.orcamento = orcamento;
+    }
+
+    public Integer getQuantidadePessoas() {
+        return quantidadePessoas;
+    }
+
+    public void setQuantidadePessoas(Integer quantidadePessoas) {
+        this.quantidadePessoas = quantidadePessoas;
+    }
+}

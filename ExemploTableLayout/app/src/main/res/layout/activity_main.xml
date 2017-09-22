@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:stretchColumns="0,1">
+
+    <TableRow>
+
+        <TextView
+            android:layout_span="2"
+            android:text="Destino" />
+    </TableRow>
+
+    <TableRow android:layout_width="match_parent">
+
+        <EditText
+            android:id="@+id/destino"
+            android:layout_span="2"
+            android:inputType="text" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_span="2"
+            android:text="Tipo da Viagem" />
+    </TableRow>
+
+    <TableRow>
+
+        <RadioGroup
+            android:layout_span="2"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:checked="true"
+                android:text="Lazer" />
+
+            <RadioButton
+                android:layout_marginLeft="30dp"
+                android:text="Negocios" />
+        </RadioGroup>
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_gravity="center"
+            android:text="Data de Saída" />
+
+        <TextView
+            android:layout_gravity="center"
+            android:text="Data de Chegada" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:onClick="selecionarData"
+            android:text="05/04/2012" />
+
+        <Button
+            android:onClick="selecionarData"
+            android:text="12/04/2012" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:text="Qtd de Pessoas" />
+
+        <EditText
+            android:id="@+id/quantidadePessoas"
+            android:inputType="number" />
+    </TableRow>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_span="2"
+            android:onClick="criarViagem"
+            android:text="Criar nova viagem" />
+
+</TableLayout>

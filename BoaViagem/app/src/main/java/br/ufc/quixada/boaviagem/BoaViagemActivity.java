@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * Created by Anibal on 21/09/2017.
+ */
 public class BoaViagemActivity extends Activity {
     private EditText usuario;
     private EditText senha;

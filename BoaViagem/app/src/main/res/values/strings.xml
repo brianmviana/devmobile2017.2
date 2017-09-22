@@ -9,4 +9,19 @@
     <string name="nova_viagem">Nova Viagem</string>
     <string name="configuracoes">Configurações</string>
     <string name="minhas_viagens">Minhas Viagens</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="destino">Destino</string>
+    <string name="tipo_da_viagem">Tipo da viagem</string>
+    <string name="lazer">Lazer</string>
+    <string name="negocios">Negócios</string>
+    <string name="selecione">Selecione</string>
+    <string name="orcamento">Orçamento</string>
+    <string name="quantidade_de_pessoas">Qtd. de pessoas</string>
+    <string name="criar_nova_viagem">Criar nova viagem</string>
+    <string name="data_da_saida">Data da Partida</string>
+    <string name="data_da_chegada">Data do Retorno</string>
+    <string name="editar">Editar</string>
+    <string name="opcoes">Opções</string>
 </resources>
