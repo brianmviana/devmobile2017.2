@@ -10,28 +10,22 @@ import android.os.*;
  */
 
 public class ConfirmaDialogFragment extends DialogFragment {
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Deseja Excluir o Contato ?");
-        builder.setPositiveButton("Sim", confirmaSim);
-        builder.setNegativeButton("Não", confirmaNao);
-        return builder.create();
-    }
+    private NotificarEscutadorDoDialog escutador;
 
     public interface NotificarEscutadorDoDialog {
         public void onDialogSimClick(DialogFragment dialog);
         public void onDialogNaoClick(DialogFragment dialog);
     }
 
-    private NotificarEscutadorDoDialog escutador;
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        escutador = (NotificarEscutadorDoDialog) context;
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Deseja Excluir o Contato ?");
+        builder.setPositiveButton("Sim", confirmaSim);
+        builder.setNegativeButton("Não", confirmaNao);
+        escutador = (NotificarEscutadorDoDialog) getActivity();
+        return builder.create();
     }
-
 
     DialogInterface.OnClickListener confirmaSim = new DialogInterface.OnClickListener() {
         @Override

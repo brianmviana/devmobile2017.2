@@ -57,6 +57,6 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onDialogNaoClick(DialogFragment dialog) {
-        //Não faz nada!!
+
     }
 }
