@@ -1,4 +1,4 @@
-package br.ufc.quixada.listviewsemlistactivitycomitemclick;
+package br.ufc.quixada.alertdialogokcancel;
 
 import android.app.Activity;
 import android.content.Intent;
