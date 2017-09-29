@@ -4,14 +4,23 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-public class MainActivity extends Activity implements  SimpleAdapter.ViewBinder,
-        AdapterView.OnItemClickListener, MenuDialogFragment.NotificarEscutadorDoDialog{
+public class MainActivity extends Activity implements SimpleAdapter.ViewBinder,
+        AdapterView.OnItemClickListener, MenuDialogFragment.NotificarEscutadorDoDialog {
 
     private AgendaDAO agenda;
+    private SimpleAdapter adapter;
+    private ListView listView;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        listView.refreshDrawableState();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +31,8 @@ public class MainActivity extends Activity implements  SimpleAdapter.ViewBinder,
         String[] chave = {"foto", "nome", "celular", "email"};
         int[] valor = {R.id.foto, R.id.nome, R.id.celular, R.id.email};
 
-        SimpleAdapter adapter = new SimpleAdapter(this, agenda.listaContatos, R.layout.layout_item_lista, chave, valor);
-        ListView listView = findViewById(R.id.lista);
+        adapter = new SimpleAdapter(this, agenda.listaContatos, R.layout.layout_item_lista, chave, valor);
+        listView = findViewById(R.id.lista);
         adapter.setViewBinder(this);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
@@ -32,8 +41,7 @@ public class MainActivity extends Activity implements  SimpleAdapter.ViewBinder,
     @Override
     public void onDialogExcluiClick(int posicao) {
         agenda.remover(posicao);
-        finish();
-        startActivity(this.getIntent());
+        listView.refreshDrawableState();
     }
 
     @Override
