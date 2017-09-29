@@ -4,22 +4,21 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-public class MainActivity extends Activity implements  SimpleAdapter.ViewBinder,
-        AdapterView.OnItemClickListener, MenuDialogFragment.NotificarEscutadorDoDialog{
+public class MainActivity extends Activity implements SimpleAdapter.ViewBinder,
+        AdapterView.OnItemClickListener, MenuDialogFragment.NotificarEscutadorDoDialog {
 
     private AgendaDAO agenda;
     private SimpleAdapter adapter;
     private ListView listView;
 
     @Override
-    protected void onResume(){
-       super.onResume();
-       listView.refreshDrawableState();
+    protected void onResume() {
+        super.onResume();
+        listView.refreshDrawableState();
     }
 
     @Override
