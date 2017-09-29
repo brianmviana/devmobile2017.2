@@ -9,17 +9,17 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-public class MainActivity extends Activity implements SimpleAdapter.ViewBinder,
-        AdapterView.OnItemClickListener, MenuDialogFragment.NotificarEscutadorDoDialog {
+public class MainActivity extends Activity implements  SimpleAdapter.ViewBinder,
+        AdapterView.OnItemClickListener, MenuDialogFragment.NotificarEscutadorDoDialog{
 
     private AgendaDAO agenda;
     private SimpleAdapter adapter;
     private ListView listView;
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        listView.refreshDrawableState();
+    protected void onResume(){
+       super.onResume();
+       listView.refreshDrawableState();
     }
 
     @Override
@@ -41,6 +41,7 @@ public class MainActivity extends Activity implements SimpleAdapter.ViewBinder,
     @Override
     public void onDialogExcluiClick(int posicao) {
         agenda.remover(posicao);
+        listView.setAdapter(adapter);
         listView.refreshDrawableState();
     }
 
