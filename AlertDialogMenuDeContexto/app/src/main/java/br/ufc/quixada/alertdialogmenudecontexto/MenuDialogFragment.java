@@ -17,6 +17,7 @@ public class MenuDialogFragment extends DialogFragment  {
 
     public interface NotificarEscutadorDoDialog {
         public void onDialogExcluiClick(int posicao);
+        public void onDialogEditarClick(int posicao);
     }
 
     @Override
@@ -34,9 +35,7 @@ public class MenuDialogFragment extends DialogFragment  {
             int pos = MenuDialogFragment.this.getArguments().getInt("pos");
             switch (item) {
                 case 0:
-                    Intent intent = new Intent(getActivity(), ContatoActivity.class);
-                    intent.putExtra("pos", pos);
-                    startActivity(intent);
+                    escutador.onDialogEditarClick(pos);
                     break;
                 case 1:
                     escutador.onDialogExcluiClick(pos);

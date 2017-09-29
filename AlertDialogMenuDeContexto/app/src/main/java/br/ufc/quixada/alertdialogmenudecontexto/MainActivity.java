@@ -1,6 +1,7 @@
 package br.ufc.quixada.alertdialogmenudecontexto;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -33,6 +34,13 @@ public class MainActivity extends Activity implements  SimpleAdapter.ViewBinder,
         agenda.remover(posicao);
         finish();
         startActivity(this.getIntent());
+    }
+
+    @Override
+    public void onDialogEditarClick(int posicao) {
+        Intent intent = new Intent(this, ContatoActivity.class);
+        intent.putExtra("pos", posicao);
+        startActivity(intent);
     }
 
     @Override
