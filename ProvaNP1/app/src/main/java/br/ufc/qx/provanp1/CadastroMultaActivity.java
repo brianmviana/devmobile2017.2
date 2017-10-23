@@ -16,18 +16,24 @@ import java.util.Map;
 public class CadastroMultaActivity extends Activity implements DatePickerFragment.EscutadorDoDatePickerDialog, TimePickerFragment.EscutadorDoTimePickerDialog {
 
     private Spinner veiculoSpinner, multaSpinner;
-    private Button dataButton, horaButton;
+    private Button dataButton, horaButton, cadastroButton;
     private EditText placaEditText;
     private MultaDAO multaDao;
     private Date date;
     private Calendar cal;
-    private Bundle posicao;
+    private Bundle bundle = null;
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (posicao != null) {
-            carregarDados(posicao.getInt("posicao"));
+        bundle = this.getIntent().getExtras();
+        if (bundle != null) {
+            int pos = bundle.getInt("posicao", -1);
+            if (pos >= 0){
+                cadastroButton = findViewById(R.id.cadastroButton);
+                cadastroButton.setText("Atualizar Multa");
+                carregarDados(pos);
+            }
         }
     }
 
@@ -44,8 +50,9 @@ public class CadastroMultaActivity extends Activity implements DatePickerFragmen
         cal = Calendar.getInstance();
         dataButton.setHint(new SimpleDateFormat("dd/MM/yyyy").format(cal.getTime()));
         horaButton.setHint(new SimpleDateFormat("HH:mm").format(cal.getTime()));
+        cadastroButton = findViewById(R.id.cadastroButton);
+        cadastroButton.setText("Salvar Multa");
         this.date = cal.getTime();
-        posicao = this.getIntent().getExtras();
     }
 
     private void carregarDados(int posicao) {
@@ -116,10 +123,10 @@ public class CadastroMultaActivity extends Activity implements DatePickerFragmen
                 imagem = R.drawable.caminhao;
                 break;
         }
-        if (posicao == null) {
+        if (bundle == null) {
             multaDao.salvar(imagem, veiculo, multa, this.date, placa);
         } else {
-            multaDao.atualizar(posicao.getInt("posicao"), imagem, veiculo, multa, this.date, placa);
+            multaDao.atualizar(bundle.getInt("posicao"), imagem, veiculo, multa, this.date, placa);
         }
         this.finish();
     }

@@ -65,9 +65,7 @@
         android:id="@+id/placaEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textCapCharacters"
-        android:hint="NQP - 9481"/>
+        android:inputType="textCapCharacters"/>
 
     <Button
         android:id="@+id/cadastroButton"

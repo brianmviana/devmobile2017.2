@@ -27,7 +27,7 @@ public class MenuDialogFragment extends DialogFragment  {
     DialogInterface.OnClickListener itemClick = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int item) {
-            int pos = MenuDialogFragment.this.getArguments().getInt("pos");
+            int pos = MenuDialogFragment.this.getArguments().getInt("posicao");
             switch (item) {
                 case 0:
                     escutador.onDialogEditarClick(pos);
