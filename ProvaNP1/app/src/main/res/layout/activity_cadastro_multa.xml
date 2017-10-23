@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tituloVeiculoTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Veiculo:" />
+
+    <Spinner
+        android:id="@+id/veiculoSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/categoria_veiculos"
+        android:spinnerMode="dropdown"/>
+
+    <TextView
+        android:id="@+id/tituloMultaTextView"
+        android:layout_width="371dp"
+        android:layout_height="wrap_content"
+        android:text="Infração" />
+
+    <Spinner
+        android:id="@+id/multaSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/categoria_multas"
+        android:spinnerMode="dropdown"/>
+
+    <TextView
+        android:id="@+id/tituloDataTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Data:" />
+
+    <Button
+        android:id="@+id/dataButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="cadastrarData"
+        android:focusedByDefault="true"/>
+
+    <TextView
+        android:id="@+id/tituloHoratextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hora:" />
+
+    <Button
+        android:id="@+id/horaButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="cadastrarHora"/>
+
+    <TextView
+        android:id="@+id/tituloPlacaTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Placa: " />
+
+    <EditText
+        android:id="@+id/placaEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textCapCharacters"
+        android:hint="NQP - 9481"/>
+
+    <Button
+        android:id="@+id/cadastroButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Salvar Multa"
+        android:onClick="salvar"/>
+</LinearLayout>

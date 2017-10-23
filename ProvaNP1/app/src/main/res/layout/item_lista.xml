@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/veiculoImageView"
+        android:layout_width="150dp"
+        android:layout_height="130dp"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="16dp"
+        android:adjustViewBounds="false"
+        android:cropToPadding="false"
+        android:src="@drawable/carro" />
+
+    <TextView
+        android:id="@+id/veiculoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/veiculoImageView"
+        android:layout_marginTop="16dp"
+        android:layout_toEndOf="@+id/veiculoImageView"
+        android:text="Moto" />
+
+    <TextView
+        android:id="@+id/multaTtextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/veiculoTextView"
+        android:layout_marginTop="16dp"
+        android:layout_toEndOf="@+id/veiculoImageView"
+        android:text="CEL" />
+
+    <TextView
+        android:id="@+id/dataTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/multaTtextView"
+        android:layout_marginTop="16dp"
+        android:layout_toEndOf="@+id/veiculoImageView"
+        android:text="22:45 - 22/10/2017" />
+
+    <TextView
+        android:id="@+id/placaTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dataTextView"
+        android:layout_marginTop="16dp"
+        android:layout_toEndOf="@+id/veiculoImageView"
+        android:text="NQP - 9481" />
+
+
+</RelativeLayout>

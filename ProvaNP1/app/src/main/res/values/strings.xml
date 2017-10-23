@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ProvaNP1</string>
+    <string name="multar">MULTAR VEÍCULO</string>
+    <string-array name="categoria_veiculos">
+        <item>Carro</item>
+        <item>Moto</item>
+        <item>Caminhão</item>
+    </string-array>
+    <string-array name="categoria_multas">
+        <item>ELP</item>
+        <item>PLP</item>
+        <item>TSS</item>
+        <item>CEL</item>
+        <item>TSC</item>
+        <item>NMO</item>
+        <item>TVP</item>
+    </string-array>
+</resources>
