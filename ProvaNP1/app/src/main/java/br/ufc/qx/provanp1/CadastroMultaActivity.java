@@ -1,11 +1,9 @@
 package br.ufc.qx.provanp1;
 
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -13,15 +11,25 @@ import android.widget.Spinner;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 public class CadastroMultaActivity extends Activity implements DatePickerFragment.EscutadorDoDatePickerDialog, TimePickerFragment.EscutadorDoTimePickerDialog {
-    
+
     private Spinner veiculoSpinner, multaSpinner;
     private Button dataButton, horaButton;
     private EditText placaEditText;
     private MultaDAO multaDao;
     private Date date;
     private Calendar cal;
+    private Bundle posicao;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (posicao != null) {
+            carregarDados(posicao.getInt("posicao"));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +45,61 @@ public class CadastroMultaActivity extends Activity implements DatePickerFragmen
         dataButton.setHint(new SimpleDateFormat("dd/MM/yyyy").format(cal.getTime()));
         horaButton.setHint(new SimpleDateFormat("HH:mm").format(cal.getTime()));
         this.date = cal.getTime();
-        if(TextUtils.isEmpty(placaEditText.getText().toString())) {
-            placaEditText.setError("A placa é um campo obrigatório!");
-            return;
+        posicao = this.getIntent().getExtras();
+    }
+
+    private void carregarDados(int posicao) {
+        Map<String, Object> multaItem = multaDao.buscarPorPosicao(posicao);
+        String placa = multaItem.get("placa").toString();
+        Date date = (Date) multaItem.get("date");
+        String data = new SimpleDateFormat("dd/MM/yyyy").format(date);
+        String hora = new SimpleDateFormat("HH:mm").format(date);
+
+        this.dataButton.setText(data);
+        this.horaButton.setText(hora);
+        this.placaEditText.setText(placa);
+
+
+        switch (Integer.parseInt(multaItem.get("imagem").toString())) {
+            case R.drawable.carro:
+                this.veiculoSpinner.setSelection(0, true);
+                break;
+            case R.drawable.moto:
+                this.veiculoSpinner.setSelection(1, true);
+                break;
+            case R.drawable.caminhao:
+                this.veiculoSpinner.setSelection(2, true);
+                break;
+        }
+
+        String tipoMulta = multaItem.get("multa").toString();
+
+        String[] string_array = getResources().getStringArray(R.array.categoria_multas);
+
+        for (int i = 0; i < string_array.length; i++) {
+            if (string_array[i].equalsIgnoreCase(tipoMulta)) {
+                this.multaSpinner.setSelection(i, true);
+                break;
+            }
         }
     }
 
     public void salvar(View v) {
+        if (TextUtils.isEmpty(placaEditText.getText().toString().trim())) {
+            placaEditText.setError("Campo obrigatório.");
+            return;
+        }
+
+        if (TextUtils.isEmpty(dataButton.getText().toString().trim())) {
+            dataButton.setError("Campo obrigatório.");
+            return;
+        }
+
+        if (TextUtils.isEmpty(horaButton.getText().toString().trim())) {
+            horaButton.setError("Campo obrigatório.");
+            return;
+        }
+
         String veiculo = veiculoSpinner.getSelectedItem().toString();
         String multa = multaSpinner.getSelectedItem().toString();
         String placa = placaEditText.getText().toString();
@@ -60,15 +116,17 @@ public class CadastroMultaActivity extends Activity implements DatePickerFragmen
                 imagem = R.drawable.caminhao;
                 break;
         }
-        multaDao.save(imagem, veiculo, multa, this.date, placa);
+        if (posicao == null) {
+            multaDao.salvar(imagem, veiculo, multa, this.date, placa);
+        } else {
+            multaDao.atualizar(posicao.getInt("posicao"), imagem, veiculo, multa, this.date, placa);
+        }
         this.finish();
     }
 
     @Override
     public void onDateSelectedClick(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(this.date);
-        dataButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(cal.getTime()));
+        dataButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(date));
         this.date = date;
     }
 

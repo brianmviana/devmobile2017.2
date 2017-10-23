@@ -23,36 +23,39 @@ class MultaDAO {
         listaMultas = new ArrayList<Map<String, Object>>();
     }
 
-    public void save(Map<String, Object> multa) {
-        this.listaMultas.add(multa);
-    }
-
-    public void save(int imagem, String veiculo, String multa, Date data, String placa) {
+    public void salvar(int imagem, String veiculo, String multa, Date data, String placa) {
         Map<String, Object> item = new HashMap<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         item.put("imagem", imagem);
         item.put("veiculo", veiculo);
         item.put("multa", multa);
         item.put("data", dateFormat.format(data));
+        item.put("date", data);
         item.put("placa", placa);
         listaMultas.add(item);
     }
 
 
-    public void delete(int posicao) {
+    public void apagar(int posicao) {
         this.listaMultas.remove(posicao);
     }
 
-    public void update(int posicao, int imagem, String veiculo, String multa, Date data, String placa) {
+    public void atualizar(int posicao, int imagem, String veiculo, String multa, Date data, String placa) {
         Map<String, Object> item = listaMultas.get(posicao);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         item.put("imagem", imagem);
         item.put("veiculo", veiculo);
         item.put("multa", multa);
-        item.put("data", new SimpleDateFormat("HH:mm '-' dd/MM/yyyy").format(data));
+        item.put("data", dateFormat.format(data));
+        item.put("date", data);
         item.put("placa", placa);
     }
 
-    public ArrayList<Map<String, Object>> list() {
+    public ArrayList<Map<String, Object>> listarTodos() {
         return this.listaMultas;
+    }
+
+    public Map<String, Object> buscarPorPosicao(int posicao) {
+        return this.listaMultas.get(posicao);
     }
 }

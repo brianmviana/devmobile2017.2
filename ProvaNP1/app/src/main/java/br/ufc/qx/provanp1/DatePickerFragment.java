@@ -38,7 +38,9 @@ public class DatePickerFragment extends DialogFragment {
         public void onDateSet(DatePicker
                                       datePicker, int ano, int mes, int dia) {
             c = Calendar.getInstance();
-            c.set(ano, mes, dia);
+            c.set(Calendar.YEAR, ano);
+            c.set(Calendar.MONTH, mes);
+            c.set(Calendar.DAY_OF_MONTH, dia);
             escutadorDaData.onDateSelectedClick(c.getTime());
         }
     };
