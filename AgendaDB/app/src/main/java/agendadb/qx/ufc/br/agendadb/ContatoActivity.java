@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Random;
 
 public class ContatoActivity extends Activity implements DatePickerFragment.EscutadorDoDatePickerDialog {
 
@@ -24,6 +23,21 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
     private Date date;
     private Calendar cal;
     private Bundle bundle = null;
+    private int id;
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bundle = this.getIntent().getExtras();
+        if (bundle != null) {
+            id = bundle.getInt("id", 0);
+            if (id > 0) {
+                salvarButton.setText("Atualizar Contato");
+                carregarDados(id);
+            }
+        }
+    }
 
 
     @Override
@@ -31,7 +45,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contato);
         contatoDAO = new ContatoDAO(this);
-
+        id = 0;
         nomeEditText = findViewById(R.id.nomeEditText);
         celularEditText = findViewById(R.id.celularEditText);
         emailEditText = findViewById(R.id.emailEditText);
@@ -42,7 +56,21 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         cal = Calendar.getInstance();
         aniversarioButton.setHint(new SimpleDateFormat("dd/MM/yyyy").format(cal.getTime()));
 
-        
+
+    }
+
+    public void carregarDados(int id) {
+        contato = contatoDAO.buscarContatoPorId(id);
+        int foto = Integer.parseInt(contato.getFoto());
+        String nome = contato.getNome();
+        String email = contato.getEmail();
+        String celular = contato.getCelular();
+        date = contato.getData_aniversario();
+        fotoAgenda.setImageResource(foto);
+        nomeEditText.setText(nome);
+        celularEditText.setText(celular);
+        emailEditText.setText(email);
+        aniversarioButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(date));
     }
 
     public void salvarContato(View view) {
@@ -61,7 +89,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
             return;
         }
         String nome = nomeEditText.getText().toString();
-        String cel = celularEditText.getText().toString();
+        String celular = celularEditText.getText().toString();
         String email = emailEditText.getText().toString();
         String foto = null;
 
@@ -69,8 +97,13 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
             foto = String.valueOf(R.drawable.foto2);
         else
             foto = String.valueOf(R.drawable.foto1);
-        contato = new Contato(0, nome, email, cel, foto, this.date);
-        contatoDAO.inserirContato(contato);
+
+        contato = new Contato(id, nome, email, celular, foto, date);
+        if (id > 0) {
+            contatoDAO.atualizarContato(contato);
+        } else {
+            contatoDAO.inserirContato(contato);
+        }
         finish();
     }
 

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.Date;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String BANCO_DADOS = "agenda";
@@ -19,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         public static final String DATA_ANIVERSARIO = "data_aniversario";
 
         public static final String[] COLUNAS =
-                new String[]{_ID, NOME, EMAIL, CELULAR, FOTO, DATA_ANIVERSARIO};
+                new String[]{_ID, NOME, CELULAR, EMAIL, FOTO, DATA_ANIVERSARIO};
     }
 
     public DatabaseHelper(Context context) {

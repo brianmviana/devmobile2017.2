@@ -17,7 +17,7 @@ public class DatePickerFragment extends DialogFragment {
     private Calendar c;
 
     public interface EscutadorDoDatePickerDialog {
-        public void onDateSelectedClick(Date date);
+        void onDateSelectedClick(Date date);
     }
 
 

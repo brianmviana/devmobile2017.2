@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 
 /**
@@ -16,8 +15,8 @@ public class MenuDialogFragment extends DialogFragment  {
 
 
     public interface NotificarEscutadorDoDialog {
-        public void onDialogExcluiClick(int id);
-        public void onDialogEditarClick(int id);
+        void onDialogExcluiClick(int id);
+        void onDialogEditarClick(int id);
     }
 
     @Override

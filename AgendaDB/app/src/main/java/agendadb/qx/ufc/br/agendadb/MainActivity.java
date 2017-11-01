@@ -2,6 +2,7 @@ package agendadb.qx.ufc.br.agendadb;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,11 +35,13 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         contatoDAO = new ContatoDAO(this);
+        setContentView(R.layout.activity_main);
+        carregarDados();
     }
 
     public void carregarDados() {
+        mapList = contatoDAO.listarContatos();
         String[] chave = {
                 DatabaseHelper.Contato.FOTO,
                 DatabaseHelper.Contato.NOME,
@@ -48,7 +51,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         };
         int[] valor = {R.id.foto, R.id.nome, R.id.celular, R.id.email, R.id.aniversario};
 
-        mapList = contatoDAO.listarContatos();
         adapter = new SimpleAdapter(this,
                 mapList,
                 R.layout.layout_item_contato,
