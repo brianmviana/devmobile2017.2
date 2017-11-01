@@ -16,8 +16,8 @@ public class MenuDialogFragment extends DialogFragment  {
 
 
     public interface NotificarEscutadorDoDialog {
-        public void onDialogExcluiClick(long id);
-        public void onDialogEditarClick(long id);
+        public void onDialogExcluiClick(int id);
+        public void onDialogEditarClick(int id);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class MenuDialogFragment extends DialogFragment  {
     DialogInterface.OnClickListener itemClick = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int item) {
-            long id = MenuDialogFragment.this.getArguments().getLong("id");
+            int id = MenuDialogFragment.this.getArguments().getInt("id");
             switch (item) {
                 case 0:
                     escutador.onDialogEditarClick(id);

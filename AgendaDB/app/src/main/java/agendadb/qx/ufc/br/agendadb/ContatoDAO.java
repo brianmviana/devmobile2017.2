@@ -1,54 +1,61 @@
 package agendadb.qx.ufc.br.agendadb;
 
 
-import android.content.*;
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ContatoDAO {
 
     private DatabaseHelper helper;
     private SQLiteDatabase db;
     private Cursor cursor;
+    private SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 
     public ContatoDAO(Context context) {
         this.helper = new DatabaseHelper(context);
     }
 
-    public Cursor listarContatosCursor() {
-        db = getSqLiteDatabase();
-        cursor = db.query(DatabaseHelper.Contato.TABELA,
-                DatabaseHelper.Contato.COLUNAS,
-                null, null, null, null, "nome ASC");
-        return cursor;
-    }
-
-    private SQLiteDatabase getSqLiteDatabase() {
-        return helper.getWritableDatabase();
-    }
-
-    public List<Contato> listarContatos() {
-        db = getSqLiteDatabase();
+    public List<Map<String, Object>> listarContatos() {
+        db = helper.getReadableDatabase();
         cursor = db.query(DatabaseHelper.Contato.TABELA,
                 DatabaseHelper.Contato.COLUNAS,
                 null, null, null, null, null);
 
         cursor.moveToFirst();
-        List<Contato> contatos = new ArrayList<>();
+        List<Map<String, Object>> contatos = new ArrayList<>();
 
         while (cursor.moveToNext()) {
-            Contato contato = criarContato(cursor);
+            int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.Contato._ID));
+            String nome = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.NOME));
+            String celular = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.CELULAR));
+            String email = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.EMAIL));
+            String foto = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.FOTO));
+            Date aniversario = new Date(cursor.getLong(cursor.getColumnIndex(DatabaseHelper.Contato.DATA_ANIVERSARIO)));
+            Map<String, Object> contato = new HashMap<>();
+            contato.put(DatabaseHelper.Contato._ID, id);
+            contato.put(DatabaseHelper.Contato.NOME, nome);
+            contato.put(DatabaseHelper.Contato.CELULAR, celular);
+            contato.put(DatabaseHelper.Contato.EMAIL, email);
+            contato.put(DatabaseHelper.Contato.FOTO, Integer.parseInt(foto));
+            contato.put(DatabaseHelper.Contato.DATA_ANIVERSARIO, fmt.format(aniversario));
             contatos.add(contato);
         }
-        this.close();
+        cursor.close();
         return contatos;
     }
 
 
     public Contato buscarContatoPorId(Integer id) {
-        db = getSqLiteDatabase();
+        db = helper.getReadableDatabase();
         cursor = db.query(DatabaseHelper.Contato.TABELA,
                 DatabaseHelper.Contato.COLUNAS,
                 DatabaseHelper.Contato._ID + " = ?",
@@ -56,7 +63,7 @@ public class ContatoDAO {
 
         if (cursor.moveToNext()) {
             Contato contato = criarContato(cursor);
-            this.close();
+            cursor.close();
             return contato;
         }
         return null;
@@ -71,7 +78,8 @@ public class ContatoDAO {
         values.put(DatabaseHelper.Contato.DATA_ANIVERSARIO, contato.getData_aniversario().getTime());
 
         db = helper.getWritableDatabase();
-        return db.insert(DatabaseHelper.Contato.TABELA, null, values);
+        long qtdInseridos = db.insert(DatabaseHelper.Contato.TABELA, null, values);
+        return qtdInseridos;
     }
 
     public long atualizarContato(Contato contato) {
@@ -83,18 +91,17 @@ public class ContatoDAO {
         values.put(DatabaseHelper.Contato.DATA_ANIVERSARIO, contato.getData_aniversario().getTime());
 
         db = helper.getWritableDatabase();
-        return db.update(DatabaseHelper.Contato.TABELA,
+        long qtdAtualizados = db.update(DatabaseHelper.Contato.TABELA,
                 values,
                 DatabaseHelper.Contato._ID + " = ?",
                 new String[]{contato.getId().toString()});
+        return qtdAtualizados;
     }
 
     public boolean removerContato(Integer id) {
-        String whereClause = DatabaseHelper.Contato._ID + " = ?";
-        String[] whereArgs = new String[]{id.toString()};
-        SQLiteDatabase db = helper.getWritableDatabase();
-        int removidos =
-                db.delete(DatabaseHelper.Contato.TABELA, whereClause, whereArgs);
+        db = helper.getWritableDatabase();
+        String where[] = new String[]{id.toString()};
+        int removidos = db.delete(DatabaseHelper.Contato.TABELA, "_id = ?", where);
         return removidos > 0;
     }
 
@@ -110,12 +117,7 @@ public class ContatoDAO {
     }
 
     public void close() {
-        if (cursor != null) {
-            cursor.close();
-        }
-        if (db != null) {
-            db.close();
-            db = null;
-        }
+        helper.close();
+        db = null;
     }
 }

@@ -2,51 +2,33 @@ package agendadb.qx.ufc.br.agendadb;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
+import android.widget.SimpleAdapter;
 
-import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener, MenuDialogFragment.NotificarEscutadorDoDialog {
 
-    private SimpleCursorAdapter adapter;
+    private SimpleAdapter adapter;
     private ListView listView;
     private ContatoDAO contatoDAO;
-    private Cursor cursor;
-
+    private List<Map<String, Object>> mapList;
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-
-        String[] chave = {
-                DatabaseHelper.Contato.FOTO,
-                DatabaseHelper.Contato.NOME,
-                DatabaseHelper.Contato.CELULAR,
-                DatabaseHelper.Contato.EMAIL,
-                DatabaseHelper.Contato.DATA_ANIVERSARIO
-        };
-        int[] valor = {R.id.foto, R.id.nome, R.id.celular, R.id.email, R.id.aniversario};
-
-        cursor = contatoDAO.listarContatosCursor();
-        adapter = new SimpleCursorAdapter(this,
-                R.layout.layout_item_contato,
-                cursor,
-                chave,
-                valor,
-                0);
+    protected void onResume() {
+        super.onResume();
+        carregarDados();
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         contatoDAO.close();
+        super.onDestroy();
     }
 
     @Override
@@ -54,8 +36,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         contatoDAO = new ContatoDAO(this);
-        cursor = contatoDAO.listarContatosCursor();
+    }
 
+    public void carregarDados() {
         String[] chave = {
                 DatabaseHelper.Contato.FOTO,
                 DatabaseHelper.Contato.NOME,
@@ -65,25 +48,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         };
         int[] valor = {R.id.foto, R.id.nome, R.id.celular, R.id.email, R.id.aniversario};
 
-        adapter = new SimpleCursorAdapter(this,
+        mapList = contatoDAO.listarContatos();
+        adapter = new SimpleAdapter(this,
+                mapList,
                 R.layout.layout_item_contato,
-                cursor,
                 chave,
-                valor,
-                0);
-        adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                if (columnIndex == 5) {
-                    Long date = cursor.getLong(columnIndex);
-                    TextView data = (TextView) view;
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTimeInMillis(date);
-                    data.setText(cal.DAY_OF_MONTH + "/" + cal.MONTH + 1 + "/" + cal.YEAR);
-                    return true;
-                }
-                return false;
-            }
-        });
+                valor);
         listView = findViewById(R.id.listaContatos);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
@@ -95,12 +65,14 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     }
 
     @Override
-    public void onDialogExcluiClick(long id) {
-        contatoDAO.removerContato((int) id);
+    public void onDialogExcluiClick(int id) {
+        if (contatoDAO.removerContato(id)) {
+            carregarDados();
+        }
     }
 
     @Override
-    public void onDialogEditarClick(long id) {
+    public void onDialogEditarClick(int id) {
         Intent intent = new Intent(this, ContatoActivity.class);
         intent.putExtra("id", id);
         startActivity(intent);
@@ -109,8 +81,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         MenuDialogFragment fragmento = new MenuDialogFragment();
+        Map<String, Object> item = mapList.get(position);
         Bundle bundle = new Bundle();
-        bundle.putLong("id", id);
+        bundle.putInt("id", (int) item.get(DatabaseHelper.Contato._ID));
         fragmento.setArguments(bundle);
         fragmento.show(this.getFragmentManager(), "confirma");
     }

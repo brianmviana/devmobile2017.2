@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String BANCO_DADOS = "agenda";
-    private static final int VERSAO = 2;
+    private static final int VERSAO = 1;
 
     public static class Contato {
         public static final String TABELA = "contato";

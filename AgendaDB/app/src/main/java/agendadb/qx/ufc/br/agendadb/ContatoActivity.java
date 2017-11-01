@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 public class ContatoActivity extends Activity implements DatePickerFragment.EscutadorDoDatePickerDialog {
 
@@ -24,11 +25,6 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
     private Calendar cal;
     private Bundle bundle = null;
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        contatoDAO.close();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +42,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         cal = Calendar.getInstance();
         aniversarioButton.setHint(new SimpleDateFormat("dd/MM/yyyy").format(cal.getTime()));
 
+        
     }
 
     public void salvarContato(View view) {
@@ -66,8 +63,13 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         String nome = nomeEditText.getText().toString();
         String cel = celularEditText.getText().toString();
         String email = emailEditText.getText().toString();
+        String foto = null;
 
-        contato = new Contato(0, nome, email, cel, R.id.fotoAgenda + "", this.date);
+        if (this.date.getTime() % 2 == 0)
+            foto = String.valueOf(R.drawable.foto2);
+        else
+            foto = String.valueOf(R.drawable.foto1);
+        contato = new Contato(0, nome, email, cel, foto, this.date);
         contatoDAO.inserirContato(contato);
         finish();
     }
