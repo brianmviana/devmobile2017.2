@@ -30,7 +30,6 @@ public class ContatoDAO {
                 DatabaseHelper.Contato.COLUNAS,
                 null, null, null, null, null);
 
-        cursor.moveToFirst();
         List<Map<String, Object>> contatos = new ArrayList<>();
 
         while (cursor.moveToNext()) {

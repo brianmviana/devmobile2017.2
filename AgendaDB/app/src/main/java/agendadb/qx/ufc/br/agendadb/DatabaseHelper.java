@@ -33,7 +33,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE contato (_id INTEGER PRIMARY KEY," +
                 "nome TEXT, email TEXT, celular TEXT," +
                 "foto TEXT, data_aniversario DATE);");
-        db.execSQL("INSERT INTO contato (nome, email, celular, foto, data_aniversario) values (NULL, NULL, NULL, NULL, NULL)");
     }
 
     @Override
