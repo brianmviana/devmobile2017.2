@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MultaDB</string>
+    <string-array name="categoria_veiculos">
+        <item>Carro</item>
+        <item>Moto</item>
+        <item>Caminhão</item>
+    </string-array>
+    <string-array name="categoria_multas">
+        <item>ELP</item>
+        <item>PLP</item>
+        <item>TSS</item>
+        <item>CEL</item>
+        <item>TSC</item>
+        <item>NMO</item>
+        <item>TVP</item>
+    </string-array>
+</resources>
