@@ -49,7 +49,7 @@ public class MultaDAO {
             multa.put(DataBaseHelper.Multa.TIPO_MULTA, tipoMulta);
             multa.put(DataBaseHelper.Multa.PLACA_VEICULO, placa);
             multa.put(DataBaseHelper.Multa.IMAGEM_VEICULO, imagemVeiculo);
-            multa.put(DataBaseHelper.Multa.DATA_MULTA, dataMulta);
+            multa.put(DataBaseHelper.Multa.DATA_MULTA, fmt.format(dataMulta));
             lista.add(multa);
         }
         return lista;

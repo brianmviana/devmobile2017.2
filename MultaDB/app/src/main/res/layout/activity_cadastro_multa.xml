@@ -35,7 +35,7 @@
         android:id="@+id/dataButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="selecionarData" />
+        android:onClick="selecionarData"/>
 
     <TextView
         android:layout_width="wrap_content"

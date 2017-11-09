@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     private static final String NOME_BD = "multaDB";
-    private static final int VERSAO_BD = 2;
+    private static final int VERSAO_BD = 1;
 
     public DataBaseHelper(Context context) {
         super(context, NOME_BD, null, VERSAO_BD);
