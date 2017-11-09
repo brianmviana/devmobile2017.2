@@ -10,6 +10,7 @@ import android.widget.Spinner;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import br.ufc.qx.multadb.dao.MultaDAO;
 import br.ufc.qx.multadb.dominio.Multa;
@@ -25,6 +26,19 @@ public class CadastroMultaActivity extends Activity
     private Date data;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Bundle bundle = this.getIntent().getExtras();
+        if (bundle != null) {
+            int id = bundle.getInt("id", -1);
+            if (id >= 0) {
+                cadastroButton.setText("Atualizar Multa");
+                carregarDados(id);
+            }
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_multa);
@@ -35,11 +49,49 @@ public class CadastroMultaActivity extends Activity
         dataButton = findViewById(R.id.dataButton);
         horaButton = findViewById(R.id.horaButton);
         placaEditText = findViewById(R.id.palcaEditText);
+        cadastroButton = findViewById(R.id.cadastrarButton);
 
         data = Calendar.getInstance().getTime();
         dataButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(data));
         horaButton.setText(new SimpleDateFormat("HH:mm").format(data));
 
+    }
+
+
+    private void carregarDados(long id) {
+        Multa multa = multaDao.buscarPorId(id);
+        String placa = multa.getPlaca();
+        Date date = (Date) multa.getDataMulta();
+        String data = new SimpleDateFormat("dd/MM/yyyy").format(date);
+        String hora = new SimpleDateFormat("HH:mm").format(date);
+
+        this.dataButton.setText(data);
+        this.horaButton.setText(hora);
+        this.placaEditText.setText(placa);
+
+
+        switch (Integer.parseInt(multa.getImagemVeiculo())) {
+            case R.drawable.carro:
+                this.veiculoSpinner.setSelection(0, true);
+                break;
+            case R.drawable.moto:
+                this.veiculoSpinner.setSelection(1, true);
+                break;
+            case R.drawable.caminhao:
+                this.veiculoSpinner.setSelection(2, true);
+                break;
+        }
+
+        String tipoMulta = multa.getTipoMulta();
+
+        String[] string_array = getResources().getStringArray(R.array.categoria_multas);
+
+        for (int i = 0; i < string_array.length; i++) {
+            if (string_array[i].equalsIgnoreCase(tipoMulta)) {
+                this.multaSpinner.setSelection(i, true);
+                break;
+            }
+        }
     }
 
     public void salvar(View v) {

@@ -55,7 +55,7 @@ public class MultaDAO {
         return lista;
     }
 
-    private Multa buscarPorId(long id) {
+    public Multa buscarPorId(long id) {
         db = helper.getReadableDatabase();
         String selecao = DataBaseHelper.Multa._ID + " = ?";
         String[] argumentos = {String.valueOf(id)};
