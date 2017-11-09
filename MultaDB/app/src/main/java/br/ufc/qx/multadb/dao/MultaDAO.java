@@ -23,7 +23,7 @@ public class MultaDAO {
     private SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     public MultaDAO(Context context) {
-        helper = new DataBaseHelper(context);
+        helper = DataBaseHelper.getInstance(context);
     }
 
     public List<Map<String, Object>> listar() {
@@ -52,6 +52,7 @@ public class MultaDAO {
             multa.put(DataBaseHelper.Multa.DATA_MULTA, fmt.format(dataMulta));
             lista.add(multa);
         }
+        db.close();
         return lista;
     }
 
@@ -68,6 +69,7 @@ public class MultaDAO {
 
         cursor.moveToFirst();
         Multa multa = criarMulta(cursor);
+        db.close();
         return multa;
     }
 
@@ -81,6 +83,7 @@ public class MultaDAO {
 
         db = helper.getWritableDatabase();
         long idNovoRegistro = db.insert(DataBaseHelper.Multa.NOME_TABELA, null, values);
+        db.close();
         return idNovoRegistro;
     }
 
@@ -96,7 +99,11 @@ public class MultaDAO {
         String[] argumentos = {String.valueOf(multa.getId())};
 
         db = helper.getWritableDatabase();
-        return db.update(DataBaseHelper.Multa.NOME_TABELA, values, selecao, argumentos);
+
+        int linhasAfetadas = db.update(DataBaseHelper.Multa.NOME_TABELA, values, selecao, argumentos);
+        db.close();
+        return linhasAfetadas;
+
     }
 
     public int excluirPorId(long id) {
@@ -104,7 +111,9 @@ public class MultaDAO {
         String[] argumentos = {String.valueOf(id)};
 
         db = helper.getWritableDatabase();
-        return db.delete(DataBaseHelper.Multa.NOME_TABELA, selecao, argumentos);
+        int linhasApagadas  = db.delete(DataBaseHelper.Multa.NOME_TABELA, selecao, argumentos);
+        db.close();
+        return linhasApagadas;
     }
 
     public int excluir(Multa multa) {
@@ -120,5 +129,10 @@ public class MultaDAO {
         String imagemVeiculo = cursor.getString(4);
         Date dataMulta = new Date(cursor.getLong(5));
         return new Multa(_id, tipoVeiculo, tipoMulta, placa, imagemVeiculo, dataMulta);
+    }
+
+    public void close() {
+        helper.close();
+        db = null;
     }
 }

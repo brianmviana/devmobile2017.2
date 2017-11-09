@@ -21,6 +21,12 @@ public class MainActivity extends Activity implements MenuDialogFragment.Notific
     private List<Map<String, Object>> listaMultas;
 
     @Override
+    protected void onDestroy() {
+        multaDAO.close();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         carregarDados();
@@ -32,7 +38,6 @@ public class MainActivity extends Activity implements MenuDialogFragment.Notific
         setContentView(R.layout.activity_main);
         multaDAO = new MultaDAO(this);
         listView = findViewById(R.id.lista);
-        carregarDados();
     }
 
     private void carregarDados() {
@@ -84,4 +89,5 @@ public class MainActivity extends Activity implements MenuDialogFragment.Notific
         fragmento.setArguments(bundle);
         fragmento.show(this.getFragmentManager(), "confirma");
     }
+
 }

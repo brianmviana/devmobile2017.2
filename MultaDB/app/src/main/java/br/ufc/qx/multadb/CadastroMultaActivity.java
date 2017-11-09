@@ -2,6 +2,7 @@ package br.ufc.qx.multadb;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,19 +21,20 @@ public class CadastroMultaActivity extends Activity
         TimePickerFragment.NotificarEscutadorDoTimePickerDialog {
 
     private Spinner veiculoSpinner, multaSpinner;
-    private Button dataButton, horaButton, cadastroButton;
+    private Button dataButton, horaButton, salvarMultaButton;
     private EditText placaEditText;
     private MultaDAO multaDao;
     private Date data;
+    private long id;
 
     @Override
     protected void onResume() {
         super.onResume();
         Bundle bundle = this.getIntent().getExtras();
         if (bundle != null) {
-            int id = bundle.getInt("id", -1);
-            if (id >= 0) {
-                cadastroButton.setText("Atualizar Multa");
+            id = bundle.getLong("id", -1);
+            if (id > 0) {
+                salvarMultaButton.setText("Atualizar Multa");
                 carregarDados(id);
             }
         }
@@ -49,7 +51,7 @@ public class CadastroMultaActivity extends Activity
         dataButton = findViewById(R.id.dataButton);
         horaButton = findViewById(R.id.horaButton);
         placaEditText = findViewById(R.id.palcaEditText);
-        cadastroButton = findViewById(R.id.cadastrarButton);
+        salvarMultaButton = findViewById(R.id.salvarMultaButton);
 
         data = Calendar.getInstance().getTime();
         dataButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(data));
@@ -61,7 +63,7 @@ public class CadastroMultaActivity extends Activity
     private void carregarDados(long id) {
         Multa multa = multaDao.buscarPorId(id);
         String placa = multa.getPlaca();
-        Date date = (Date) multa.getDataMulta();
+        Date date = multa.getDataMulta();
         String data = new SimpleDateFormat("dd/MM/yyyy").format(date);
         String hora = new SimpleDateFormat("HH:mm").format(date);
 
@@ -95,6 +97,21 @@ public class CadastroMultaActivity extends Activity
     }
 
     public void salvar(View v) {
+        if (TextUtils.isEmpty(placaEditText.getText().toString().trim())) {
+            placaEditText.setError("Campo obrigatório.");
+            return;
+        }
+
+        if (TextUtils.isEmpty(dataButton.getText().toString().trim())) {
+            dataButton.setError("Campo obrigatório.");
+            return;
+        }
+
+        if (TextUtils.isEmpty(horaButton.getText().toString().trim())) {
+            horaButton.setError("Campo obrigatório.");
+            return;
+        }
+
         Multa multa = null;
         String tipoVeiculo = veiculoSpinner.getSelectedItem().toString();
         String tipoMulta = multaSpinner.getSelectedItem().toString();
@@ -113,10 +130,14 @@ public class CadastroMultaActivity extends Activity
                 break;
         }
 
-        multa = new Multa(0L, tipoVeiculo, tipoMulta, placaVeiculo, String.valueOf(imagem), data);
-        multaDao.salvar(multa);
+        if (id > 0) {
+            multa = new Multa(id, tipoVeiculo, tipoMulta, placaVeiculo, String.valueOf(imagem), data);
+            multaDao.atualizar(multa);
+        } else {
+            multa = new Multa(0L, tipoVeiculo, tipoMulta, placaVeiculo, String.valueOf(imagem), data);
+            multaDao.salvar(multa);
+        }
         this.finish();
-
     }
 
     public void selecionarData(View v) {
@@ -137,11 +158,11 @@ public class CadastroMultaActivity extends Activity
 
     @Override
     public void onTimeSelectedClick(int horaDoDia, int minuto) {
-        horaButton.setText(horaDoDia + ":" + minuto);
         Calendar c = Calendar.getInstance();
         c.setTime(data);
         c.set(Calendar.HOUR_OF_DAY, horaDoDia);
         c.set(Calendar.MINUTE, minuto);
         data = c.getTime();
+        horaButton.setText(new SimpleDateFormat("HH:mm").format(data));
     }
 }

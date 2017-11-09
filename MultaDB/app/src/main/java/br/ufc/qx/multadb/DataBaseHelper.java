@@ -8,8 +8,16 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     private static final String NOME_BD = "multaDB";
     private static final int VERSAO_BD = 1;
+    private static DataBaseHelper instance;
 
-    public DataBaseHelper(Context context) {
+    public static DataBaseHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new DataBaseHelper(context.getApplicationContext());
+        }
+        return instance;
+    }
+
+    private DataBaseHelper(Context context) {
         super(context, NOME_BD, null, VERSAO_BD);
     }
 
@@ -46,6 +54,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                         IMAGEM_VEICULO + " TEXT, " +
                         DATA_MULTA + " DATE);";
 
-        public static final String EXCLUIR_TABELA = "DROP TABLE " + NOME_TABELA + ";";    }
+        public static final String EXCLUIR_TABELA = "DROP TABLE " + NOME_TABELA + ";";
+    }
 
 }
