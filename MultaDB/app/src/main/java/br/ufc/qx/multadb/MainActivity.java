@@ -1,12 +1,14 @@
 package br.ufc.qx.multadb;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.Map;
@@ -67,7 +69,12 @@ public class MainActivity extends Activity implements MenuDialogFragment.Notific
     @Override
     public void onDialogExcluiClick(int posicao) {
         Map<String, Object> item = listaMultas.get(posicao);
-        multaDAO.excluirPorId((long) item.get(DataBaseHelper.Multa._ID));
+        int resultado = multaDAO.excluirPorId((long) item.get(DataBaseHelper.Multa._ID));
+        if (resultado > 0) {
+            mostrarMensagem("Multa excluída com sucesso!");
+        } else {
+            mostrarMensagem("Erro ao excluir multa.");
+        }
         onResume();
     }
 
@@ -88,6 +95,13 @@ public class MainActivity extends Activity implements MenuDialogFragment.Notific
         bundle.putInt("pos", pos);
         fragmento.setArguments(bundle);
         fragmento.show(this.getFragmentManager(), "confirma");
+    }
+
+    private void mostrarMensagem(String mensagem) {
+        Context contexto = getApplicationContext();
+        int duracao = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(contexto, mensagem, duracao);
+        toast.show();
     }
 
 }

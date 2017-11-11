@@ -1,12 +1,14 @@
 package br.ufc.qx.multadb;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,7 +34,7 @@ public class CadastroMultaActivity extends Activity
         super.onResume();
         Bundle bundle = this.getIntent().getExtras();
         if (bundle != null) {
-            id = bundle.getLong("id", -1);
+            id = bundle.getLong("id", 0);
             if (id > 0) {
                 salvarMultaButton.setText("Atualizar Multa");
                 carregarDados(id);
@@ -46,6 +48,7 @@ public class CadastroMultaActivity extends Activity
         setContentView(R.layout.activity_cadastro_multa);
         multaDao = new MultaDAO(this);
 
+        this.id = 0L;
         multaSpinner = findViewById(R.id.tipoMultaSpinner);
         veiculoSpinner = findViewById(R.id.tipoVeiculoSpinner);
         dataButton = findViewById(R.id.dataButton);
@@ -112,7 +115,6 @@ public class CadastroMultaActivity extends Activity
             return;
         }
 
-        Multa multa = null;
         String tipoVeiculo = veiculoSpinner.getSelectedItem().toString();
         String tipoMulta = multaSpinner.getSelectedItem().toString();
         String placaVeiculo = placaEditText.getText().toString();
@@ -130,12 +132,22 @@ public class CadastroMultaActivity extends Activity
                 break;
         }
 
+        Multa multa = new Multa(id, tipoVeiculo, tipoMulta, placaVeiculo, String.valueOf(imagem), data);
+        long resultado = 0;
         if (id > 0) {
-            multa = new Multa(id, tipoVeiculo, tipoMulta, placaVeiculo, String.valueOf(imagem), data);
-            multaDao.atualizar(multa);
+            resultado = multaDao.atualizar(multa);
+            if (resultado > 0) {
+                mostrarMensagem("Multa atualizada!");
+            } else {
+                mostrarMensagem("Erro ao atualizar multa.");
+            }
         } else {
-            multa = new Multa(0L, tipoVeiculo, tipoMulta, placaVeiculo, String.valueOf(imagem), data);
-            multaDao.salvar(multa);
+            resultado = multaDao.salvar(multa);
+            if (resultado > 0) {
+                mostrarMensagem("Multa salva!");
+            } else {
+                mostrarMensagem("Erro ao salvar multa.");
+            }
         }
         this.finish();
     }
@@ -164,5 +176,12 @@ public class CadastroMultaActivity extends Activity
         c.set(Calendar.MINUTE, minuto);
         data = c.getTime();
         horaButton.setText(new SimpleDateFormat("HH:mm").format(data));
+    }
+
+    private void mostrarMensagem(String mensagem) {
+        Context contexto = getApplicationContext();
+        int duracao = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(contexto, mensagem, duracao);
+        toast.show();
     }
 }
