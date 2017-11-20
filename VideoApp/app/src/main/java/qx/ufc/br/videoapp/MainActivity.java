@@ -19,11 +19,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int CAPTURAR_VIDEO = 1;
     private Uri uri;
+    private Boolean possuiCartaoSD = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        possuiCartaoSD = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
     }
 
     @Override
@@ -87,10 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void iniciarGravacaoDeVideo() {
         try {
-            String diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
-            File pathVideo = new File(diretorio + "/" + System.currentTimeMillis() + ".mp4");
-            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
-            uri = FileProvider.getUriForFile(this, authority, pathVideo);
+            setArquivoVideo();
             Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
             intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 10);
@@ -100,4 +99,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+	private void setArquivoVideo() {
+        File diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        if (!possuiCartaoSD) {
+            diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        }
+
+        File pathVideo = new File(diretorio + "/" + System.currentTimeMillis() + ".mp4");
+
+		if(android.os.Build.VERSION.SDK_INT >= 23){
+            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
+            uri = FileProvider.getUriForFile(this, authority, pathVideo);
+        }else{
+            uri = Uri.fromFile(pathVideo);
+        }
+	}
 }

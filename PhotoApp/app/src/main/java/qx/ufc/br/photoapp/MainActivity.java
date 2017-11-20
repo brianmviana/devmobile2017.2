@@ -93,7 +93,7 @@ public class MainActivity extends Activity {
             String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
             uri = FileProvider.getUriForFile(this, authority, pathImagem);
         } else {
-            uri = Uri.fromFile(new File(pathImagem.toURI()));
+            uri = Uri.fromFile(pathImagem);
         }
     }
 
