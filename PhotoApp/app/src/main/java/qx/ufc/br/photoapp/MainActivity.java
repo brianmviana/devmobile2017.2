@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import java.io.File;
 
 public class MainActivity extends Activity {
     private static final int CAPTURAR_IMAGEM = 1;
+
     private Uri uri;
 
     @Override
@@ -28,23 +30,34 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
     }
 
-    private void getPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        } else
-            dispatchTakePictureIntent();
+    private void getPermissoes() {
+        String CAMERA = Manifest.permission.CAMERA;
+        String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+        String READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
+        int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
+
+        boolean permissaoCamera = ActivityCompat.checkSelfPermission(this, CAMERA) == PERMISSION_GRANTED;
+        boolean permissaoEscrita = ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED;
+        boolean permissaoLeitura = ActivityCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED;
+
+        if (permissaoCamera && permissaoEscrita && permissaoLeitura) {
+            iniciarCapturaDeFotos();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 1);
+        }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    dispatchTakePictureIntent();
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[1] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                    iniciarCapturaDeFotos();
                 } else {
-                    Toast.makeText(this, "Não vai funcionar!!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Sem permissão para uso de câmera.", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -52,23 +65,28 @@ public class MainActivity extends Activity {
     }
 
     public void capturarImagem(View v) {
-        getPermissions();
+        getPermissoes();
     }
 
-    private void dispatchTakePictureIntent() {
-        File diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        String nomeImagem = diretorio.getPath() + "/" + System.currentTimeMillis() + ".jpg";
-        uri = Uri.fromFile(new File(nomeImagem));
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        startActivityForResult(intent, CAPTURAR_IMAGEM);
+    private void iniciarCapturaDeFotos() {
+        try {
+            String diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
+            File pathImagem = new File(diretorio + "/" + System.currentTimeMillis() + ".jpg");
+            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
+            uri = FileProvider.getUriForFile(this, authority, pathImagem);
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            startActivityForResult(intent, CAPTURAR_IMAGEM);
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURAR_IMAGEM) {
             if (resultCode == RESULT_OK) {
-                ImageView imagem = (ImageView) findViewById(R.id.imagem);
+                ImageView imagem = findViewById(R.id.imagem);
                 try {
                     Bitmap bmp = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
                     imagem.setImageBitmap(bmp);
