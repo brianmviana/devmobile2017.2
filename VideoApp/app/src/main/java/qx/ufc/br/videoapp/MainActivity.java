@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -45,27 +46,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void capturarVideo(View v) {
-        getPermissions();
+        getPermissoes();
     }
 
 
-    private void getPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        } else
-            dispatchTakePictureIntent();
+    private void getPermissoes() {
+        String CAMERA = Manifest.permission.CAMERA;
+        String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+        String READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
+        int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
+
+        boolean permissaoCamera = ActivityCompat.checkSelfPermission(this, CAMERA) == PERMISSION_GRANTED;
+        boolean permissaoEscrita = ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED;
+        boolean permissaoLeitura = ActivityCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED;
+
+        if (permissaoCamera && permissaoEscrita && permissaoLeitura) {
+            iniciarGravacaoDeVideo();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 1);
+        }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    dispatchTakePictureIntent();
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[1] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+                    iniciarGravacaoDeVideo();
                 } else {
-                    Toast.makeText(this, "Não vai funcionar!!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Sem permissão para uso de câmera.", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -73,16 +85,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void dispatchTakePictureIntent() {
-        File diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-
-        String nomeImagem = diretorio.getPath() + "/" + System.currentTimeMillis() + ".jpg";
-        uri = Uri.fromFile(new File(nomeImagem));
-
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 5);
-        startActivityForResult(intent, CAPTURAR_VIDEO);
+    private void iniciarGravacaoDeVideo() {
+        try {
+            String diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
+            File pathVideo = new File(diretorio + "/" + System.currentTimeMillis() + ".mp4");
+            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
+            uri = FileProvider.getUriForFile(this, authority, pathVideo);
+            Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+            intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 10);
+            startActivityForResult(intent, CAPTURAR_VIDEO);
+        } catch (Exception e) {
+            Toast.makeText(this, "Erro ao iniciar a câmera.", Toast.LENGTH_LONG).show();
+        }
     }
 
 }

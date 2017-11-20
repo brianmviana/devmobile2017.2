@@ -78,7 +78,7 @@ public class MainActivity extends Activity {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(intent, CAPTURAR_IMAGEM);
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Erro ao iniciar a câmera.", Toast.LENGTH_LONG).show();
         }
     }
 
