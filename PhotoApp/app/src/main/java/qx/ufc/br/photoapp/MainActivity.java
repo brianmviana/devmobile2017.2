@@ -21,13 +21,14 @@ import java.io.File;
 
 public class MainActivity extends Activity {
     private static final int CAPTURAR_IMAGEM = 1;
-
     private Uri uri;
+    private Boolean possuiCartaoSD = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        possuiCartaoSD = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
     }
 
     private void getPermissoes() {
@@ -70,15 +71,29 @@ public class MainActivity extends Activity {
 
     private void iniciarCapturaDeFotos() {
         try {
-            String diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath();
-            File pathImagem = new File(diretorio + "/" + System.currentTimeMillis() + ".jpg");
-            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
-            uri = FileProvider.getUriForFile(this, authority, pathImagem);
+            setArquivoImagem();
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(intent, CAPTURAR_IMAGEM);
         } catch (Exception e) {
             Toast.makeText(this, "Erro ao iniciar a câmera.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setArquivoImagem() {
+        File diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        if (!possuiCartaoSD) {
+            diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        }
+
+        File pathImagem = new File(diretorio + "/" + System.currentTimeMillis() + ".jpg");
+
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
+            uri = FileProvider.getUriForFile(this, authority, pathImagem);
+        } else {
+            uri = Uri.fromFile(new File(pathImagem.toURI()));
         }
     }
 
