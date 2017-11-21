@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -104,8 +105,13 @@ public class MainActivity extends Activity {
             if (resultCode == RESULT_OK) {
                 ImageView imagem = findViewById(R.id.imagem);
                 try {
-                    Bitmap bmp = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-                    imagem.setImageBitmap(bmp);
+                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+                    int bmpWidth = bitmap.getWidth();
+                    int bmpHeight = bitmap.getHeight();
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth, bmpHeight, matrix, true);
+                    imagem.setImageBitmap(resizedBitmap);
                 } catch (Exception e) {
                     Toast.makeText(this, "Imagem não encontrada!", Toast.LENGTH_LONG).show();
                 }
