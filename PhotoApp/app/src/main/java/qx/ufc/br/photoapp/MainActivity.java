@@ -2,50 +2,55 @@ package qx.ufc.br.photoapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileOutputStream;
 
 
 public class MainActivity extends Activity {
     private static final int CAPTURAR_IMAGEM = 1;
     private Uri uri;
     private Boolean possuiCartaoSD = false;
+    private Boolean dispositivoSuportaCartaoSD = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         possuiCartaoSD = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+        dispositivoSuportaCartaoSD = Environment.isExternalStorageRemovable();
     }
 
     private void getPermissoes() {
-        String CAMERA = Manifest.permission.CAMERA;
-        String WRITE_EXTERNAL_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-        String READ_EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
-        int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
+        boolean camera = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+        boolean leitura = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        boolean escrita = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
 
-        boolean permissaoCamera = ActivityCompat.checkSelfPermission(this, CAMERA) == PERMISSION_GRANTED;
-        boolean permissaoEscrita = ActivityCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED;
-        boolean permissaoLeitura = ActivityCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) == PERMISSION_GRANTED;
-
-        if (permissaoCamera && permissaoEscrita && permissaoLeitura) {
+        if (camera && leitura && escrita) {
             iniciarCapturaDeFotos();
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{CAMERA, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1);
         }
     }
 
@@ -55,7 +60,7 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 1: {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                if (    grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                         grantResults[1] == PackageManager.PERMISSION_GRANTED &&
                         grantResults[2] == PackageManager.PERMISSION_GRANTED) {
                     iniciarCapturaDeFotos();
@@ -68,7 +73,11 @@ public class MainActivity extends Activity {
     }
 
     public void capturarImagem(View v) {
-        getPermissoes();
+        if (android.os.Build.VERSION.SDK_INT >= 23) {
+            getPermissoes();
+        } else {
+            iniciarCapturaDeFotos();
+        }
     }
 
     private void iniciarCapturaDeFotos() {
@@ -83,19 +92,37 @@ public class MainActivity extends Activity {
     }
 
     private void setArquivoImagem() {
-        File diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        String nomeArquivo = System.currentTimeMillis() + ".jpg";
+        File pathDaImagem = getDiretorioDeSalvamento(nomeArquivo);
 
-        if (!possuiCartaoSD) {
-            diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
+            uri = FileProvider.getUriForFile(this, authority, pathDaImagem);
+        } else {
+            uri = Uri.fromFile(pathDaImagem);
+        }
+    }
+
+    private File getDiretorioDeSalvamento(String nomeArquivo) {
+        File diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        if (possuiCartaoSD && dispositivoSuportaCartaoSD) {
+            diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         }
 
-        File pathImagem = new File(diretorio + "/" + System.currentTimeMillis() + ".jpg");
+        File pathDaImagem = new File(diretorio, nomeArquivo);
+        return pathDaImagem;
+    }
 
-        if (android.os.Build.VERSION.SDK_INT >= 23) {
-            String authority = this.getApplicationContext().getPackageName() + ".fileprovider";
-            uri = FileProvider.getUriForFile(this, authority, pathImagem);
-        } else {
-            uri = Uri.fromFile(pathImagem);
+    private void salvarInternamente(String nomeArquivo, File imagem) {
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = openFileOutput(nomeArquivo, Context.MODE_PRIVATE);
+            byte[] bytesArray = new byte[(int) imagem.length()];
+            outputStream.write(bytesArray);
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
