@@ -44,13 +44,6 @@ public class MainActivity extends Activity {
     }
 
     private void getLocationManager() {
-        Listener listener = new Listener();
-
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        long tempoAtualizacao = 0;
-        float distancia = 0;
-
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{
                             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -59,6 +52,11 @@ public class MainActivity extends Activity {
                     1);
             return;
         }
+
+        Listener listener = new Listener();
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        long tempoAtualizacao = 0;
+        float distancia = 0;
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, tempoAtualizacao, distancia, listener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, tempoAtualizacao, distancia, listener);
     }
@@ -96,18 +94,10 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
+        public void onStatusChanged(String provider, int status, Bundle extras) {    }
         @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
+        public void onProviderEnabled(String provider) {  }
         @Override
-        public void onProviderDisabled(String provider) {
-
-        }
+        public void onProviderDisabled(String provider) { }
     }
 }
