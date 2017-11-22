@@ -2,7 +2,6 @@ package qx.ufc.br.photoapp;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -21,7 +20,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
 
 
 public class MainActivity extends Activity {
@@ -114,18 +112,6 @@ public class MainActivity extends Activity {
         return pathDaImagem;
     }
 
-    private void salvarInternamente(String nomeArquivo, File imagem) {
-        FileOutputStream outputStream = null;
-        try {
-            outputStream = openFileOutput(nomeArquivo, Context.MODE_PRIVATE);
-            byte[] bytesArray = new byte[(int) imagem.length()];
-            outputStream.write(bytesArray);
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURAR_IMAGEM) {
@@ -143,9 +129,7 @@ public class MainActivity extends Activity {
                     Toast.makeText(this, "Imagem não encontrada!", Toast.LENGTH_LONG).show();
                 }
             } else {
-                Toast.makeText(this, "Imagem não capturada!",
-                        Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText(this, "Imagem não capturada!", Toast.LENGTH_LONG).show();
             }
         }
     }

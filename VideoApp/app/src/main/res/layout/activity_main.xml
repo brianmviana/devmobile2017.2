@@ -15,4 +15,9 @@
         android:layout_height="wrap_content"
         android:onClick="visualizarVideo"
         android:text="Visualizar Video" />
+
+    <VideoView android:id="@+id/videoView"
+        android:layout_height="400dp"
+        android:layout_width="400dp"
+        android:layout_gravity="center"/>
 </LinearLayout>

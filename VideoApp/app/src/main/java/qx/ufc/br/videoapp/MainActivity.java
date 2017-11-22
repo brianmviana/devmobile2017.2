@@ -11,7 +11,9 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.MediaController;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import java.io.File;
 
@@ -20,11 +22,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAPTURAR_VIDEO = 1;
     private Uri uri;
     private Boolean possuiCartaoSD = false;
+    private VideoView videoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        videoView = findViewById(R.id.videoView);
         possuiCartaoSD = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
     }
 
@@ -42,9 +46,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void visualizarVideo(View v) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "video/mp4");
-        startActivity(intent);
+        videoView.setVideoURI(uri);
+        MediaController mc = new MediaController(this);
+        videoView.setMediaController(mc);
+        videoView.start();
     }
 
     public void capturarVideo(View v) {
