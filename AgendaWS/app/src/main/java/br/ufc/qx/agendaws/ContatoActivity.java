@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,8 +43,6 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
 
     private ImageView fotoAgenda;
     private Uri uri;
-    private Boolean possuiCartaoSD = false;
-    private Boolean dispositivoSuportaCartaoSD = false;
 
     @Override
     protected void onResume() {
@@ -80,24 +80,29 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
                 capturarImagem(v);
             }
         });
-
-        possuiCartaoSD = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
-        dispositivoSuportaCartaoSD = Environment.isExternalStorageRemovable();
     }
 
 
     public void carregarDados(int id) {
         contato = contatoDAO.buscarContatoPorId(id);
-        int foto = Integer.parseInt(contato.getUriFoto());
+        String foto = contato.getUriFoto();
         String nome = contato.getNome();
         String email = contato.getEmail();
         String celular = contato.getCelular();
         date = contato.getData_aniversario();
-        fotoAgenda.setImageResource(foto);
         nomeEditText.setText(nome);
         celularEditText.setText(celular);
         emailEditText.setText(email);
         aniversarioButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(date));
+
+        try {
+            String nomeArquivo = Utils.resolverNomeArquivo(foto);
+            Uri imgUri = Uri.fromFile(getDiretorioDeSalvamento(nomeArquivo));
+            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imgUri));
+            fotoAgenda.setImageBitmap(bitmap);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public void salvarContato(View view) {
@@ -172,11 +177,6 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
 
     private File getDiretorioDeSalvamento(String nomeArquivo) {
         File diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
-        if (possuiCartaoSD && dispositivoSuportaCartaoSD) {
-            diretorio = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        }
-
         File pathDaImagem = new File(diretorio, nomeArquivo);
         return pathDaImagem;
     }
@@ -186,18 +186,8 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAPTURAR_IMAGEM) {
             if (resultCode == RESULT_OK) {
-                ImageView imagem = findViewById(R.id.fotoAgenda);
-                try {
-                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-                    int bmpWidth = bitmap.getWidth();
-                    int bmpHeight = bitmap.getHeight();
-                    Matrix matrix = new Matrix();
-                    matrix.postRotate(90);
-                    Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth, bmpHeight, matrix, true);
-                    imagem.setImageBitmap(resizedBitmap);
-                } catch (Exception e) {
-                    Toast.makeText(this, "Imagem não encontrada!", Toast.LENGTH_LONG).show();
-                }
+                RecarregarImagem ri = new RecarregarImagem();
+                ri.execute();
             } else {
                 Toast.makeText(this, "Imagem não capturada!", Toast.LENGTH_LONG).show();
             }
@@ -244,4 +234,29 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
                     1);
         }
     }
+
+    class RecarregarImagem extends AsyncTask<Void, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            try {
+                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+                int bmpWidth = bitmap.getWidth();
+                int bmpHeight = bitmap.getHeight();
+                Matrix matrix = new Matrix();
+                matrix.postRotate(0);
+                Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth, bmpHeight, matrix, true);
+                return resizedBitmap;
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "Imagem não encontrada!", Toast.LENGTH_LONG).show();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            fotoAgenda.invalidate();
+            fotoAgenda.setImageBitmap(bitmap);
+        }
+    }
+
 }

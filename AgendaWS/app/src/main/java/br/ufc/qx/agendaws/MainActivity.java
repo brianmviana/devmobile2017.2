@@ -37,7 +37,7 @@ public class MainActivity extends Activity implements
     private ListView listView;
     private ContatoDAO contatoDAO;
     private List<Map<String, Object>> mapList;
-    private ImageView foto;
+    private ImageView fotoAgenda;
     private ProgressDialog load;
 
     @Override
@@ -79,7 +79,7 @@ public class MainActivity extends Activity implements
         listView = findViewById(R.id.listaContatos);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
-        foto = findViewById(R.id.foto);
+        fotoAgenda = findViewById(R.id.foto);
         adapter.setViewBinder(this);
     }
 
@@ -91,7 +91,7 @@ public class MainActivity extends Activity implements
                 String pathDaImagem = data.toString();
                 Uri imgUri = Uri.fromFile(new File(pathDaImagem));
                 Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imgUri));
-                foto.setImageBitmap(bitmap);
+                fotoAgenda.setImageBitmap(bitmap);
                 return true;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();

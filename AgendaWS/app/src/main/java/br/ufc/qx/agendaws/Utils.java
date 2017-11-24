@@ -87,7 +87,7 @@ public class Utils {
         return null;
     }
 
-    private String resolverNomeArquivo(String nomeArquivo) {
+    public static String resolverNomeArquivo(String nomeArquivo) {
         int beginIndex = nomeArquivo.lastIndexOf("/") + 1;
         String nome = nomeArquivo.substring(beginIndex);
         return nome;
