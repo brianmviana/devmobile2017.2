@@ -1,18 +1,27 @@
 package br.ufc.qx.agendaws;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,6 +38,7 @@ public class MainActivity extends Activity implements
     private ContatoDAO contatoDAO;
     private List<Map<String, Object>> mapList;
     private ImageView foto;
+    private ProgressDialog load;
 
     @Override
     protected void onResume() {
@@ -47,7 +57,6 @@ public class MainActivity extends Activity implements
         super.onCreate(savedInstanceState);
         contatoDAO = new ContatoDAO(this);
         setContentView(R.layout.activity_main);
-
         carregarDados();
     }
 
@@ -124,4 +133,77 @@ public class MainActivity extends Activity implements
         fragmento.setArguments(bundle);
         fragmento.show(this.getFragmentManager(), "confirma");
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (isOnline()) {
+                        RecuperarJson baixarContato = new RecuperarJson();
+                        baixarContato.execute();
+                    } else {
+                        Toast.makeText(this, "Sem conexão de Internet.", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(this, "Sem permissão para uso de Internet.", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+    private void getPermissaoDaInternet() {
+        boolean internet = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED;
+        boolean redeStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED;
+
+        if (internet && redeStatus) {
+            if (isOnline()) {
+                RecuperarJson baixarContato = new RecuperarJson();
+                baixarContato.execute();
+            } else {
+                Toast.makeText(this, "Sem conexão de Internet.", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.INTERNET,
+                            Manifest.permission.ACCESS_NETWORK_STATE},
+                    1);
+        }
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    public void iniciarDownload(View view) {
+        getPermissaoDaInternet();
+    }
+
+    private class RecuperarJson extends AsyncTask<Void, Void, Contato> {
+
+        @Override
+        protected void onPreExecute() {
+            load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...", "Recuperando Informações do Servidor...");
+        }
+
+        @Override
+        protected Contato doInBackground(Void... params) {
+            Utils util = new Utils();
+            File diretorio = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            return util.getInformacao("https://randomuser.me/api/1.1", diretorio.getPath());
+        }
+
+        @Override
+        protected void onPostExecute(Contato pessoa) {
+            contatoDAO.inserirContato(pessoa);
+            load.dismiss();
+            carregarDados();
+        }
+    }
+
 }
