@@ -111,7 +111,7 @@ public class ContatoDAO {
         String email = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.EMAIL));
         String foto = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.FOTO));
         Date aniversario = new Date(cursor.getLong(cursor.getColumnIndex(DatabaseHelper.Contato.DATA_ANIVERSARIO)));
-        Contato contato = new Contato(id, nome, celular, email, foto, aniversario);
+        Contato contato = new Contato(id, nome, email, celular, uriFoto, aniversario);
         return contato;
     }
 
