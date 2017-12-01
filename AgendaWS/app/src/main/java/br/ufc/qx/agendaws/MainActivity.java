@@ -13,7 +13,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -25,7 +24,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,8 @@ public class MainActivity extends Activity implements
         AdapterView.OnItemClickListener,
         MenuDialogFragment.NotificarEscutadorDoDialog, SimpleAdapter.ViewBinder {
 
-    private final String url = "http://192.168.1.4:8080/QDetectiveWebService/contatos/";
+    private final String url = "http://192.168.1.4:8080/Agenda/rest/";
+    private boolean permisaoInternet = false;
     private SimpleAdapter adapter;
     private ListView listView;
     private ContatoDAO contatoDAO;
@@ -141,14 +141,16 @@ public class MainActivity extends Activity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 1: {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     if (isOnline()) {
-                        RecuperarJson baixarContato = new RecuperarJson();
-                        baixarContato.execute();
+                        permisaoInternet = true;
+                        return;
                     } else {
+                        permisaoInternet = false;
                         Toast.makeText(this, "Sem conexão de Internet.", Toast.LENGTH_LONG).show();
                     }
                 } else {
+                    permisaoInternet = false;
                     Toast.makeText(this, "Sem permissão para uso de Internet.", Toast.LENGTH_LONG).show();
                 }
                 return;
@@ -162,8 +164,8 @@ public class MainActivity extends Activity implements
 
         if (internet && redeStatus) {
             if (isOnline()) {
-                RecuperarJson baixarContato = new RecuperarJson();
-                baixarContato.execute();
+                permisaoInternet = true;
+                return;
             } else {
                 Toast.makeText(this, "Sem conexão de Internet.", Toast.LENGTH_LONG).show();
             }
@@ -184,30 +186,53 @@ public class MainActivity extends Activity implements
 
     public void iniciarDownload(View view) {
         getPermissaoDaInternet();
+        if (permisaoInternet) {
+            DownloadContatos downloadContatos = new DownloadContatos();
+            downloadContatos.execute();
+        }
     }
 
     public void iniciarUpload(View view) {
-        EnviarJson enviarContato = new EnviarJson();
-        enviarContato.execute();
+        getPermissaoDaInternet();
+        if (permisaoInternet) {
+            EnviarJson enviarContato = new EnviarJson();
+            enviarContato.execute();
+        }
     }
 
-    private class RecuperarJson extends AsyncTask<Long, Void, List<Contato>> {
+    private class DownloadContatos extends AsyncTask<Long, Void, List<Contato>> {
         @Override
         protected void onPreExecute() {
             load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...", "Recuperando Informações do Servidor...");
         }
 
         @Override
-        protected List<Contato> doInBackground(Long... longs) {
-            return null;
+        protected List<Contato> doInBackground(Long... ids) {
+            List<Contato> contatos = new ArrayList<>();
+            if (ids.length == 0) {
+                contatos = Utils.getListaContatosJson(url, "contatos");
+            } else {
+                Contato contato = Utils.getContatoJson(url, "contatos", ids[0]);
+                contatos.add(contato);
+            }
+            return contatos;
         }
 
         @Override
         protected void onPostExecute(List<Contato> contatos) {
-            for (Contato contato : contatos) {
-                contatoDAO.inserirContato(contato);
+            if (contatos == null) {
+                Toast.makeText(getApplicationContext(),
+                        "Ops!! Tivemos um problema ao recuperar contatos da nuvem",
+                        Toast.LENGTH_LONG).show();
+            } else if (contatos.isEmpty()) {
+                Toast.makeText(getApplicationContext(),
+                        "Nenhum contato cadastrado na nuvem",
+                        Toast.LENGTH_LONG).show();
+            }else{
+                for (Contato contato : contatos) {
+                    contatoDAO.inserirContato(contato);
+                }
             }
-
             load.dismiss();
             carregarDados();
         }
@@ -221,9 +246,6 @@ public class MainActivity extends Activity implements
 
         @Override
         protected Void doInBackground(Void... params) {
-            Utils util = new Utils();
-            File diretorio = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            util.enviarContatos(url, contatoDAO);
             return null;
         }
     }
