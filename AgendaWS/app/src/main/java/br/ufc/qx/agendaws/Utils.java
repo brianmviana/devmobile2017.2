@@ -14,7 +14,9 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +24,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -114,6 +118,83 @@ class Utils {
         return null;
     }
 
+    public static boolean sendContatoJson(String url, Contato contato) {
+        try {
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Date.class, new DateTypeAdapter());
+            Gson gson = builder.setPrettyPrinting().create();
+            String jsonObject = gson.toJson(contato);
+
+            URL apiUrl = new URL(url);
+            HttpURLConnection conexao = (HttpURLConnection) apiUrl.openConnection();
+            conexao.setDoOutput(true);
+            conexao.setRequestMethod("POST");
+            conexao.setRequestProperty("Content-Type", "application/json");
+            conexao.connect();
+
+            DataOutputStream wr = new DataOutputStream(conexao.getOutputStream());
+            wr.writeBytes(jsonObject.toString());
+            wr.flush();
+            wr.close();
+            return true;
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean uploadImagemBase64(String url, String uriFoto) {
+        try {
+            File arquivo = new File(uriFoto);
+            byte [] byteArray = loadFile(arquivo);
+            byte[] encoded = Base64.encode(byteArray, Base64.DEFAULT);
+            String encodedString = new String(encoded);
+
+            GsonBuilder builder = new GsonBuilder();
+            ImagemBase64 imagemBase64 = new ImagemBase64(resolverNomeArquivo(uriFoto), encodedString);
+            Gson gson = builder.setPrettyPrinting().create();
+            String jsonObject = gson.toJson(imagemBase64);
+
+            URL apiUrl = new URL(url);
+            HttpURLConnection conexao = (HttpURLConnection) apiUrl.openConnection();
+            conexao.setDoOutput(true);
+            conexao.setRequestMethod("POST");
+            conexao.setRequestProperty("Content-Type", "application/json");
+            conexao.connect();
+
+            DataOutputStream wr = new DataOutputStream(conexao.getOutputStream());
+            wr.writeBytes(jsonObject);
+            wr.flush();
+            wr.close();
+            return true;
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private static byte[] loadFile(File file) throws IOException {
+        InputStream is = new FileInputStream(file);
+        long length = file.length();
+        byte[] bytes = new byte[(int) length];
+
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+            offset += numRead;
+        }
+        is.close();
+        return bytes;
+    }
+
     private static class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
         private final DateFormat dateFormat;
@@ -126,7 +207,7 @@ class Utils {
         @Override
         public synchronized JsonElement serialize(Date date, Type type,
                                                   JsonSerializationContext jsonSerializationContext) {
-            return new JsonPrimitive(dateFormat.format(date));
+            return new JsonPrimitive(dateFormat.format(date).toString());
         }
 
         @Override
@@ -134,6 +215,15 @@ class Utils {
                                              JsonDeserializationContext jsonDeserializationContext) {
             Date data = new Date(Long.parseLong(jsonElement.getAsString()));
             return data;
+        }
+    }
+    private static class ImagemBase64{
+        String chave = "";
+        String valor = "";
+
+        ImagemBase64(String k, String v){
+            chave = k;
+            valor = v;
         }
     }
 }

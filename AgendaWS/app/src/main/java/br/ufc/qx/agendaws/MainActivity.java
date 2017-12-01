@@ -112,6 +112,14 @@ public class MainActivity extends Activity implements
     }
 
     @Override
+    public void onDialogEnviarParaNuvemClick(int id) {
+        Contato contato = contatoDAO.buscarContatoPorId(id);
+        String path = contato.getUriFoto();
+        UploadJson uploadJson = new UploadJson();
+        uploadJson.execute(contato);
+    }
+
+    @Override
     public void onDialogExcluiClick(int id) {
         Contato contato = contatoDAO.buscarContatoPorId(id);
         String path = contato.getUriFoto();
@@ -204,7 +212,7 @@ public class MainActivity extends Activity implements
     public void iniciarUpload(View view) {
         getPermissaoDaInternet();
         if (permisaoInternet) {
-            EnviarJson enviarContato = new EnviarJson();
+            UploadJson enviarContato = new UploadJson();
             enviarContato.execute();
         }
     }
@@ -255,14 +263,21 @@ public class MainActivity extends Activity implements
         }
     }
 
-    private class EnviarJson extends AsyncTask<Void, Void, Void> {
+    private class UploadJson extends AsyncTask<Contato, Void, Void> {
         @Override
         protected void onPreExecute() {
             load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...", "Recuperando Informações do Servidor...");
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(Contato... contatos) {
+            Contato contato = contatos[0];
+            String urlDados = url + "contatos";
+            boolean resultado = Utils.sendContatoJson(urlDados, contato);
+            if (resultado) {
+                String urlArquivo = url + "arquivos/postFotoBase64";
+                Utils.uploadImagemBase64(url, contato.getUriFoto());
+            }
             return null;
         }
     }
