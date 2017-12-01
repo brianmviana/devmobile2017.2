@@ -73,7 +73,6 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
 
         cal = Calendar.getInstance();
         aniversarioButton.setHint(new SimpleDateFormat("dd/MM/yyyy").format(cal.getTime()));
-
         fotoAgenda.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,7 +124,8 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         String email = emailEditText.getText().toString();
         String foto = "";
         if (uri != null) {
-            foto = uri.toString();
+            String nomeArquivo = Utils.resolverNomeArquivo(uri.toString());
+            foto = getDiretorioDeSalvamento(nomeArquivo).toString();
         }
 
         contato = new Contato(id, nome, email, celular, foto, date);
@@ -243,7 +243,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
                 int bmpWidth = bitmap.getWidth();
                 int bmpHeight = bitmap.getHeight();
                 Matrix matrix = new Matrix();
-                matrix.postRotate(90);
+                matrix.postRotate(0);
                 Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth, bmpHeight, matrix, true);
                 return resizedBitmap;
             } catch (Exception e) {

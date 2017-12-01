@@ -13,6 +13,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -23,7 +24,6 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,17 +85,16 @@ public class MainActivity extends Activity implements
         adapter.setViewBinder(this);
     }
 
-
     @Override
     public boolean setViewValue(View view, Object data, String textRepresentation) {
         if (view.getId() == R.id.foto) {
             try {
-                String pathDaImagem = data.toString();
-                Uri imgUri = Uri.fromFile(new File(pathDaImagem));
+                String nomeArquivo = data.toString();
+                Uri imgUri = Uri.fromFile(new File(nomeArquivo));
                 Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imgUri));
                 fotoAgenda.setImageBitmap(bitmap);
                 return true;
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -114,7 +113,11 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onDialogExcluiClick(int id) {
+        Contato contato = contatoDAO.buscarContatoPorId(id);
+        String path = contato.getUriFoto();
         if (contatoDAO.removerContato(id)) {
+            File file = new File(path);
+            file.delete();
             carregarDados();
         }
     }
@@ -184,6 +187,12 @@ public class MainActivity extends Activity implements
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    private File getDiretorioDeSalvamento(String nomeArquivo) {
+        File diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File pathDaImagem = new File(diretorio, nomeArquivo);
+        return pathDaImagem;
+    }
+
     public void iniciarDownload(View view) {
         getPermissaoDaInternet();
         if (permisaoInternet) {
@@ -211,8 +220,16 @@ public class MainActivity extends Activity implements
             List<Contato> contatos = new ArrayList<>();
             if (ids.length == 0) {
                 contatos = Utils.getListaContatosJson(url, "contatos");
+                for (Contato contato : contatos) {
+                    String path = getDiretorioDeSalvamento(contato.getUriFoto()).getPath();
+                    Utils.downloadImagemBase64(url + "arquivos", path, contato.getId());
+                    contato.setUriFoto(path);
+                }
             } else {
                 Contato contato = Utils.getContatoJson(url, "contatos", ids[0]);
+                String path = getDiretorioDeSalvamento(contato.getUriFoto()).getPath();
+                Utils.downloadImagemBase64(url + "arquivos", path, contato.getId());
+                contato.setUriFoto(path);
                 contatos.add(contato);
             }
             return contatos;
@@ -222,13 +239,13 @@ public class MainActivity extends Activity implements
         protected void onPostExecute(List<Contato> contatos) {
             if (contatos == null) {
                 Toast.makeText(getApplicationContext(),
-                        "Ops!! Tivemos um problema ao recuperar contatos da nuvem",
+                        "Tivemos um problema ao recuperar contatos da nuvem",
                         Toast.LENGTH_LONG).show();
             } else if (contatos.isEmpty()) {
                 Toast.makeText(getApplicationContext(),
                         "Nenhum contato cadastrado na nuvem",
                         Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 for (Contato contato : contatos) {
                     contatoDAO.inserirContato(contato);
                 }

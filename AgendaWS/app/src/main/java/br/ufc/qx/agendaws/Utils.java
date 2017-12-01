@@ -9,7 +9,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -25,7 +24,6 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +40,6 @@ class Utils {
             String json = getJSONFromAPI(url + path + "/" + id);
             Gson gson = new Gson();
             contato = gson.fromJson(json, Contato.class);
-            downloadImagemBase64(url, "arquivos", contato.getId(), contato.getUriFoto());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,9 +54,6 @@ class Utils {
             Gson gson = b.create();
             Contato[] contato = gson.fromJson(json, Contato[].class);
             contatos = new ArrayList<>(Arrays.asList(contato));
-            for (Contato c : contatos) {
-                downloadImagemBase64(url, "arquivos", c.getId(), c.getUriFoto());
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,13 +99,12 @@ class Utils {
         return nome;
     }
 
-    private static String downloadImagemBase64(String url, String path, long id, String nomeArquivo) {
+    public static String downloadImagemBase64(String url, String path, long id) {
         try {
-            nomeArquivo = resolverNomeArquivo(nomeArquivo);
-            String imageBase64 = getJSONFromAPI(url + path + "/" + id);
+            String imageBase64 = getJSONFromAPI(url + "/" + id);
             byte[] decodedString = Base64.decode(imageBase64, Base64.DEFAULT);
             Bitmap imagem = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            File file = new File(path, nomeArquivo);
+            File file = new File(path);
             OutputStream fOut = new FileOutputStream(file);
             imagem.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
             fOut.close();
