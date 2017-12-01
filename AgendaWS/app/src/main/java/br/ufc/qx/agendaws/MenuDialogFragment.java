@@ -24,7 +24,7 @@ public class MenuDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final CharSequence[] items = {"Editar", "Remover", "Enviar"};
+        final CharSequence[] items = {"Editar", "Remover"};
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Opções").setItems(items, itemClick);
         escutador = (NotificarEscutadorDoDialog) getActivity();
