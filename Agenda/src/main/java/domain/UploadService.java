@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.xml.bind.DatatypeConverter;
-
 import com.sun.jersey.core.util.Base64;
 
 public class UploadService {
@@ -15,7 +13,6 @@ public class UploadService {
 		if (fileName == null || in == null) {
 			throw new IllegalArgumentException("Parâmetros inválidos");
 		}
-		// Pasta temporária da JVM
 		File tmpDir = new File("C:" + File.separator + "upload");
 		if (!tmpDir.exists()) {
 			// Cria a pasta carros se não existe
@@ -44,13 +41,11 @@ public class UploadService {
 		byte[] bytes = loadFile(file);
 		byte[] encoded = Base64.encode(bytes);
 		String encodedString = new String(encoded);
-
 		return encodedString;
 	}
 
 	private static byte[] loadFile(File file) throws IOException {
 		InputStream is = new FileInputStream(file);
-
 		long length = file.length();
 		byte[] bytes = new byte[(int) length];
 
@@ -59,11 +54,6 @@ public class UploadService {
 		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
 			offset += numRead;
 		}
-
-		if (offset < bytes.length) {
-			throw new IOException("Could not completely read file " + file.getName());
-		}
-
 		is.close();
 		return bytes;
 	}

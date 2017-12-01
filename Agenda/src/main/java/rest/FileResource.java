@@ -29,7 +29,7 @@ public class FileResource {
 
 	@GET
 	@Path("{id}")
-	public String getUriFoto(@PathParam("id") long id) {
+	public String getFotoBase64(@PathParam("id") long id) {
 		String imagemBase64 = "";
 		try {
 			Contato c = contatoService.buscarPorId(id);
