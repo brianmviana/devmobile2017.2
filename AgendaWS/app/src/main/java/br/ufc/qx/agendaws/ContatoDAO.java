@@ -52,6 +52,20 @@ public class ContatoDAO {
         return contatos;
     }
 
+    public List<Contato> listar() {
+        db = helper.getReadableDatabase();
+        cursor = db.query(DatabaseHelper.Contato.TABELA,
+                DatabaseHelper.Contato.COLUNAS,
+                null, null, null, null, null);
+
+        List<Contato> contatos = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            contatos.add(this.criarContato(cursor));
+        }
+        cursor.close();
+        return contatos;
+    }
 
     public Contato buscarContatoPorId(Integer id) {
         db = helper.getReadableDatabase();

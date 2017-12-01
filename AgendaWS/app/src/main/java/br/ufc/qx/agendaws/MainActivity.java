@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class MainActivity extends Activity implements
         AdapterView.OnItemClickListener,
         MenuDialogFragment.NotificarEscutadorDoDialog, SimpleAdapter.ViewBinder {
 
+    private final String url = "http://192.168.1.4:8080/QDetectiveWebService/contatos/";
     private SimpleAdapter adapter;
     private ListView listView;
     private ContatoDAO contatoDAO;
@@ -184,26 +186,45 @@ public class MainActivity extends Activity implements
         getPermissaoDaInternet();
     }
 
-    private class RecuperarJson extends AsyncTask<Void, Void, Contato> {
+    public void iniciarUpload(View view) {
+        EnviarJson enviarContato = new EnviarJson();
+        enviarContato.execute();
+    }
 
+    private class RecuperarJson extends AsyncTask<Long, Void, List<Contato>> {
         @Override
         protected void onPreExecute() {
             load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...", "Recuperando Informações do Servidor...");
         }
 
         @Override
-        protected Contato doInBackground(Void... params) {
-            Utils util = new Utils();
-            File diretorio = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-            return util.getInformacao("https://randomuser.me/api/1.1", diretorio.getPath());
+        protected List<Contato> doInBackground(Long... longs) {
+            return null;
         }
 
         @Override
-        protected void onPostExecute(Contato pessoa) {
-            contatoDAO.inserirContato(pessoa);
+        protected void onPostExecute(List<Contato> contatos) {
+            for (Contato contato : contatos) {
+                contatoDAO.inserirContato(contato);
+            }
+
             load.dismiss();
             carregarDados();
         }
     }
 
+    private class EnviarJson extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...", "Recuperando Informações do Servidor...");
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Utils util = new Utils();
+            File diretorio = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            util.enviarContatos(url, contatoDAO);
+            return null;
+        }
+    }
 }

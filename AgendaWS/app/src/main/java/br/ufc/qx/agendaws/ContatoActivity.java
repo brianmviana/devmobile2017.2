@@ -186,8 +186,8 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAPTURAR_IMAGEM) {
             if (resultCode == RESULT_OK) {
-                RecarregarImagem ri = new RecarregarImagem();
-                ri.execute();
+                RecarregarImagem recarregarImagem = new RecarregarImagem();
+                recarregarImagem.execute();
             } else {
                 Toast.makeText(this, "Imagem não capturada!", Toast.LENGTH_LONG).show();
             }
@@ -235,7 +235,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         }
     }
 
-    class RecarregarImagem extends AsyncTask<Void, Void, Bitmap> {
+    class RecarregarImagem extends AsyncTask<Void, Integer, Bitmap> {
         @Override
         protected Bitmap doInBackground(Void... voids) {
             try {
@@ -243,7 +243,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
                 int bmpWidth = bitmap.getWidth();
                 int bmpHeight = bitmap.getHeight();
                 Matrix matrix = new Matrix();
-                matrix.postRotate(0);
+                matrix.postRotate(90);
                 Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth, bmpHeight, matrix, true);
                 return resizedBitmap;
             } catch (Exception e) {
@@ -254,7 +254,6 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            fotoAgenda.invalidate();
             fotoAgenda.setImageBitmap(bitmap);
         }
     }
