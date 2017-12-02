@@ -1,4 +1,4 @@
-package agendadb.qx.ufc.br.agendadb;
+package br.ufc.qx.agendaws;
 
 
 import android.content.ContentValues;
@@ -44,7 +44,7 @@ public class ContatoDAO {
             contato.put(DatabaseHelper.Contato.NOME, nome);
             contato.put(DatabaseHelper.Contato.CELULAR, celular);
             contato.put(DatabaseHelper.Contato.EMAIL, email);
-            contato.put(DatabaseHelper.Contato.FOTO, Integer.parseInt(foto));
+            contato.put(DatabaseHelper.Contato.FOTO, foto);
             contato.put(DatabaseHelper.Contato.DATA_ANIVERSARIO, fmt.format(aniversario));
             contatos.add(contato);
         }
@@ -52,6 +52,20 @@ public class ContatoDAO {
         return contatos;
     }
 
+    public List<Contato> listar() {
+        db = helper.getReadableDatabase();
+        cursor = db.query(DatabaseHelper.Contato.TABELA,
+                DatabaseHelper.Contato.COLUNAS,
+                null, null, null, null, null);
+
+        List<Contato> contatos = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            contatos.add(this.criarContato(cursor));
+        }
+        cursor.close();
+        return contatos;
+    }
 
     public Contato buscarContatoPorId(Integer id) {
         db = helper.getReadableDatabase();
@@ -73,7 +87,7 @@ public class ContatoDAO {
         values.put(DatabaseHelper.Contato.NOME, contato.getNome());
         values.put(DatabaseHelper.Contato.CELULAR, contato.getCelular());
         values.put(DatabaseHelper.Contato.EMAIL, contato.getEmail());
-        values.put(DatabaseHelper.Contato.FOTO, contato.getFoto());
+        values.put(DatabaseHelper.Contato.FOTO, contato.getUriFoto());
         values.put(DatabaseHelper.Contato.DATA_ANIVERSARIO, contato.getData_aniversario().getTime());
 
         db = helper.getWritableDatabase();
@@ -86,7 +100,7 @@ public class ContatoDAO {
         values.put(DatabaseHelper.Contato.NOME, contato.getNome());
         values.put(DatabaseHelper.Contato.CELULAR, contato.getCelular());
         values.put(DatabaseHelper.Contato.EMAIL, contato.getEmail());
-        values.put(DatabaseHelper.Contato.FOTO, contato.getFoto());
+        values.put(DatabaseHelper.Contato.FOTO, contato.getUriFoto());
         values.put(DatabaseHelper.Contato.DATA_ANIVERSARIO, contato.getData_aniversario().getTime());
 
         db = helper.getWritableDatabase();
@@ -109,7 +123,7 @@ public class ContatoDAO {
         String nome = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.NOME));
         String celular = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.CELULAR));
         String email = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.EMAIL));
-        String foto = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.FOTO));
+        String uriFoto = cursor.getString(cursor.getColumnIndex(DatabaseHelper.Contato.FOTO));
         Date aniversario = new Date(cursor.getLong(cursor.getColumnIndex(DatabaseHelper.Contato.DATA_ANIVERSARIO)));
         Contato contato = new Contato(id, nome, email, celular, uriFoto, aniversario);
         return contato;

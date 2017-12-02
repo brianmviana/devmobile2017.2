@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/barraSuperior"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#015488"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Contato"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/fotoAgenda"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/barraSuperior"
+        android:src="@drawable/imagem_contato" />
+
+    <EditText
+        android:id="@+id/nomeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/barraSuperior"
+        android:layout_toEndOf="@+id/fotoAgenda"
+        android:hint="Nome do Contato"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/celularEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nomeEditText"
+        android:layout_toEndOf="@+id/fotoAgenda"
+        android:hint="celular"
+        android:inputType="phone" />
+
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/celularEditText"
+        android:layout_toEndOf="@+id/fotoAgenda"
+        android:hint="e-mail"
+        android:inputType="textWebEmailAddress" />
+
+    <Button
+        android:id="@+id/aniversarioButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/emailEditText"
+        android:layout_toEndOf="@+id/fotoAgenda"
+        android:focusedByDefault="true"
+        android:onClick="cadastrarData" />
+
+    <Button
+        android:id="@+id/buttonSalvar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/aniversarioButton"
+        android:onClick="salvarContato"
+        android:text="Salvar" />
+
+</RelativeLayout>
