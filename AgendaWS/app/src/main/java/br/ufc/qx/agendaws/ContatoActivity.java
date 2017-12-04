@@ -63,6 +63,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contato);
         contatoDAO = new ContatoDAO(this);
+        contato = new Contato();
         id = 0;
         nomeEditText = findViewById(R.id.nomeEditText);
         celularEditText = findViewById(R.id.celularEditText);
@@ -94,13 +95,14 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         emailEditText.setText(email);
         aniversarioButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(date));
 
-        try {
-            File arquivo = getDiretorioDeSalvamento(foto);
-            uri = Uri.fromFile(arquivo);
-            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-            fotoAgenda.setImageBitmap(bitmap);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if (foto != null) {
+            try {
+                uri = Uri.fromFile(getDiretorioDeSalvamento(foto));
+                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+                fotoAgenda.setImageBitmap(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -122,10 +124,9 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         String nome = nomeEditText.getText().toString();
         String celular = celularEditText.getText().toString();
         String email = emailEditText.getText().toString();
-        String foto = "";
-        if (uri != null) {
-            foto = uri.toString();
-        }
+        String foto = null;
+        if (uri != null)
+            foto = getDiretorioDeSalvamento(uri.toString()).toString();
 
         contato = new Contato(id, nome, email, celular, foto, date);
         if (id > 0) {
@@ -149,7 +150,8 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
 
     private void iniciarCapturaDeFotos() {
         try {
-            setArquivoImagem();
+            String nomeArquivo = (contato.getUriFoto() == null) ? System.currentTimeMillis() + ".jpg" : contato.getUriFoto();
+            uri = setArquivoImagem(nomeArquivo);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             startActivityForResult(intent, CAPTURAR_IMAGEM);
@@ -158,10 +160,9 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         }
     }
 
-    private void setArquivoImagem() {
-        String nomeArquivo = System.currentTimeMillis() + ".jpg";
+    private Uri setArquivoImagem(String nomeArquivo) {
         File pathDaImagem = getDiretorioDeSalvamento(nomeArquivo);
-
+        Uri uri = null;
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 String authority = "br.ufc.qx.agendaws.fileprovider";
@@ -172,6 +173,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         } else {
             uri = Uri.fromFile(pathDaImagem);
         }
+        return uri;
     }
 
     private File getDiretorioDeSalvamento(String nomeArquivo) {
@@ -248,6 +250,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
                 Matrix matrix = new Matrix();
                 matrix.postRotate(0);
                 Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bmpWidth, bmpHeight, matrix, true);
+                contato.setUriFoto(getDiretorioDeSalvamento(uri.toString()).getPath());
                 return resizedBitmap;
             } catch (Exception e) {
                 Toast.makeText(getApplicationContext(), "Imagem não encontrada!", Toast.LENGTH_LONG).show();

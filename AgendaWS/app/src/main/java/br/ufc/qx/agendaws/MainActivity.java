@@ -89,10 +89,12 @@ public class MainActivity extends Activity implements
     public boolean setViewValue(View view, Object data, String textRepresentation) {
         if (view.getId() == R.id.foto) {
             try {
-                String nomeArquivo = data.toString();
-                Uri imgUri = Uri.fromFile(new File(nomeArquivo));
-                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imgUri));
-                fotoAgenda.setImageBitmap(bitmap);
+                if (data != null) {
+                    String nomeArquivo = data.toString();
+                    Uri imgUri = Uri.fromFile(new File(nomeArquivo));
+                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imgUri));
+                    fotoAgenda.setImageBitmap(bitmap);
+                }
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
