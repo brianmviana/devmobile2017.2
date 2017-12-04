@@ -33,7 +33,7 @@ public class MainActivity extends Activity implements
         AdapterView.OnItemClickListener,
         MenuDialogFragment.NotificarEscutadorDoDialog, SimpleAdapter.ViewBinder {
 
-    private final String url = "http://192.168.25.9:8080/Agenda/rest/";
+    private final String url = "http://192.168.25.9:8080/WebService/rest/";
     private boolean permisaoInternet = false;
     private SimpleAdapter adapter;
     private ListView listView;
@@ -115,10 +115,12 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onDialogEnviarParaNuvemClick(int id) {
-        Contato contato = contatoDAO.buscarContatoPorId(id);
-        String path = contato.getUriFoto();
-        UploadJson uploadJson = new UploadJson();
-        uploadJson.execute(contato);
+        getPermissaoDaInternet();
+        if (permisaoInternet) {
+            Contato contato = contatoDAO.buscarContatoPorId(id);
+            UploadJson uploadJson = new UploadJson();
+            uploadJson.execute(contato);
+        }
     }
 
     @Override
@@ -180,6 +182,7 @@ public class MainActivity extends Activity implements
                 permisaoInternet = true;
                 return;
             } else {
+                permisaoInternet = false;
                 Toast.makeText(this, "Sem conexão de Internet.", Toast.LENGTH_LONG).show();
             }
         } else {
@@ -212,14 +215,6 @@ public class MainActivity extends Activity implements
         if (permisaoInternet) {
             DownloadContatos downloadContatos = new DownloadContatos();
             downloadContatos.execute();
-        }
-    }
-
-    public void iniciarUpload(View view) {
-        getPermissaoDaInternet();
-        if (permisaoInternet) {
-            UploadJson enviarContato = new UploadJson();
-            enviarContato.execute();
         }
     }
 
