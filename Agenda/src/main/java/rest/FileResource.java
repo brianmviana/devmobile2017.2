@@ -49,7 +49,7 @@ public class FileResource {
 		if (fileName != null && base64 != null) {
 			try {
 				// Decode: Converte o Base64 para array de bytes
-				byte[] bytes = Base64.getDecoder().decode(base64);
+				byte[] bytes = Base64.getMimeDecoder().decode(base64);
 				InputStream in = new ByteArrayInputStream(bytes);
 				// Faz o upload (salva o arquivo em uma pasta)
 				String path = UploadService.upload(fileName, in);

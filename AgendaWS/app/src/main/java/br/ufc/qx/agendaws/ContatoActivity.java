@@ -95,9 +95,9 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         aniversarioButton.setText(new SimpleDateFormat("dd/MM/yyyy").format(date));
 
         try {
-            String nomeArquivo = Utils.resolverNomeArquivo(foto);
-            Uri imgUri = Uri.fromFile(getDiretorioDeSalvamento(nomeArquivo));
-            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imgUri));
+            File arquivo = getDiretorioDeSalvamento(foto);
+            uri = Uri.fromFile(arquivo);
+            Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             fotoAgenda.setImageBitmap(bitmap);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -124,8 +124,7 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
         String email = emailEditText.getText().toString();
         String foto = "";
         if (uri != null) {
-            String nomeArquivo = Utils.resolverNomeArquivo(uri.toString());
-            foto = getDiretorioDeSalvamento(nomeArquivo).toString();
+            foto = uri.toString();
         }
 
         contato = new Contato(id, nome, email, celular, foto, date);
@@ -176,6 +175,10 @@ public class ContatoActivity extends Activity implements DatePickerFragment.Escu
     }
 
     private File getDiretorioDeSalvamento(String nomeArquivo) {
+        if (nomeArquivo.contains("/")) {
+            int beginIndex = nomeArquivo.lastIndexOf("/") + 1;
+            nomeArquivo = nomeArquivo.substring(beginIndex);
+        }
         File diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File pathDaImagem = new File(diretorio, nomeArquivo);
         return pathDaImagem;

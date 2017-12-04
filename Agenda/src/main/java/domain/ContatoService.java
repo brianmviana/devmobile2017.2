@@ -22,19 +22,25 @@ public class ContatoService {
 	}
 
 	public Contato salvar(Contato contato) {
+		Contato c = this.buscarPorId(contato.getId());
+		if (c != null) {
+			this.atualizar(contato);
+			return contato;
+		}
 		try {
+			contato.setUriFoto(resolverNomeArquivo(contato.getUriFoto()));
 			em.persist(contato);
 			em.flush();
 		} catch (PersistenceException e) {
 			em.getTransaction().rollback();
 			e.printStackTrace();
 		}
-
 		return contato;
 	}
 
 	public void atualizar(Contato contato) {
 		try {
+			contato.setUriFoto(resolverNomeArquivo(contato.getUriFoto()));			
 			contato = em.merge(contato);
 			em.persist(contato);
 			em.flush();
@@ -87,4 +93,10 @@ public class ContatoService {
 		}
 		return lista;
 	}
+	
+	public String resolverNomeArquivo(String nomeArquivo) {
+        int beginIndex = nomeArquivo.lastIndexOf("/") + 1;
+        String nome = nomeArquivo.substring(beginIndex);
+        return nome;
+    }
 }

@@ -8,7 +8,7 @@
 		<shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
 		<validation-mode>AUTO</validation-mode>
 		<properties>
-			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://127.0.0.1/agenda" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://127.0.0.1/agenda?autoReconnect=true&amp;useSSL=false" />
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
 			<property name="javax.persistence.jdbc.user" value="root" />
 			<property name="javax.persistence.jdbc.password" value="root" />

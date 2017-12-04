@@ -2,6 +2,7 @@ package br.ufc.qx.agendaws;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Base64;
 
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,18 +24,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 class Utils {
@@ -97,12 +104,6 @@ class Utils {
         return buffer.toString();
     }
 
-    public static String resolverNomeArquivo(String nomeArquivo) {
-        int beginIndex = nomeArquivo.lastIndexOf("/") + 1;
-        String nome = nomeArquivo.substring(beginIndex);
-        return nome;
-    }
-
     public static String downloadImagemBase64(String url, String path, long id) {
         try {
             String imageBase64 = getJSONFromAPI(url + "/" + id);
@@ -133,9 +134,21 @@ class Utils {
             conexao.connect();
 
             DataOutputStream wr = new DataOutputStream(conexao.getOutputStream());
-            wr.writeBytes(jsonObject.toString());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
+            writer.write(jsonObject.toString());
+            writer.close();
             wr.flush();
             wr.close();
+            int codigoResposta = conexao.getResponseCode();
+            InputStream is = null;
+            if (codigoResposta < HttpURLConnection.HTTP_BAD_REQUEST) {
+                is = conexao.getInputStream();
+            } else {
+                is = conexao.getErrorStream();
+            }
+            String retorno = converterInputStreamToString(is);
+            is.close();
+            conexao.disconnect();
             return true;
         } catch (ProtocolException e) {
             e.printStackTrace();
@@ -147,29 +160,47 @@ class Utils {
         return false;
     }
 
-    public static boolean uploadImagemBase64(String url, String uriFoto) {
+    public static boolean uploadImagemBase64(String url, File foto) {
         try {
-            File arquivo = new File(uriFoto);
-            byte [] byteArray = loadFile(arquivo);
-            byte[] encoded = Base64.encode(byteArray, Base64.DEFAULT);
-            String encodedString = new String(encoded);
+            byte[] byteArray = loadFile(foto);
+            String encoded = Base64.encodeToString(loadFile(foto), Base64.DEFAULT);
+            HashMap<String, String> parametros = new HashMap<>();
 
-            GsonBuilder builder = new GsonBuilder();
-            ImagemBase64 imagemBase64 = new ImagemBase64(resolverNomeArquivo(uriFoto), encodedString);
-            Gson gson = builder.setPrettyPrinting().create();
-            String jsonObject = gson.toJson(imagemBase64);
+            String nomeArquivo = foto.getName();
+            if (foto.getName().contains("/")) {
+                int beginIndex = foto.getName().lastIndexOf("/") + 1;
+                nomeArquivo = foto.getName().substring(beginIndex);
+            }
+            parametros.put("fileName", nomeArquivo);
+            parametros.put("base64", encoded);
+
 
             URL apiUrl = new URL(url);
             HttpURLConnection conexao = (HttpURLConnection) apiUrl.openConnection();
             conexao.setDoOutput(true);
+            conexao.setInstanceFollowRedirects(false);
             conexao.setRequestMethod("POST");
-            conexao.setRequestProperty("Content-Type", "application/json");
+            conexao.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conexao.setRequestProperty("charset", "UTF-8");
+            conexao.setRequestProperty("Content-Length", Integer.toString(getPostDataString(parametros).length()));
+            conexao.setUseCaches(false);
             conexao.connect();
 
-            DataOutputStream wr = new DataOutputStream(conexao.getOutputStream());
-            wr.writeBytes(jsonObject);
-            wr.flush();
-            wr.close();
+            try (DataOutputStream wr = new DataOutputStream(conexao.getOutputStream())) {
+                wr.write(getPostDataString(parametros).getBytes());
+                wr.flush();
+                wr.close();
+            }
+            int codigoResposta = conexao.getResponseCode();
+            InputStream is = null;
+            if (codigoResposta < HttpURLConnection.HTTP_BAD_REQUEST) {
+                is = conexao.getInputStream();
+            } else {
+                is = conexao.getErrorStream();
+            }
+            String retorno = converterInputStreamToString(is);
+            is.close();
+            conexao.disconnect();
             return true;
         } catch (ProtocolException e) {
             e.printStackTrace();
@@ -217,13 +248,21 @@ class Utils {
             return data;
         }
     }
-    private static class ImagemBase64{
-        String chave = "";
-        String valor = "";
 
-        ImagemBase64(String k, String v){
-            chave = k;
-            valor = v;
+    private static String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for(Map.Entry<String, String> entry : params.entrySet()){
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
         }
+
+        return result.toString();
     }
 }

@@ -33,7 +33,7 @@ public class MainActivity extends Activity implements
         AdapterView.OnItemClickListener,
         MenuDialogFragment.NotificarEscutadorDoDialog, SimpleAdapter.ViewBinder {
 
-    private final String url = "http://192.168.1.4:8080/Agenda/rest/";
+    private final String url = "http://192.168.25.9:8080/Agenda/rest/";
     private boolean permisaoInternet = false;
     private SimpleAdapter adapter;
     private ListView listView;
@@ -196,6 +196,10 @@ public class MainActivity extends Activity implements
     }
 
     private File getDiretorioDeSalvamento(String nomeArquivo) {
+        if (nomeArquivo.contains("/")) {
+            int beginIndex = nomeArquivo.lastIndexOf("/") + 1;
+            nomeArquivo = nomeArquivo.substring(beginIndex);
+        }
         File diretorio = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File pathDaImagem = new File(diretorio, nomeArquivo);
         return pathDaImagem;
@@ -273,12 +277,15 @@ public class MainActivity extends Activity implements
         protected Void doInBackground(Contato... contatos) {
             Contato contato = contatos[0];
             String urlDados = url + "contatos";
-            boolean resultado = Utils.sendContatoJson(urlDados, contato);
-            if (resultado) {
-                String urlArquivo = url + "arquivos/postFotoBase64";
-                Utils.uploadImagemBase64(url, contato.getUriFoto());
-            }
+            Utils.sendContatoJson(urlDados, contato);
+            urlDados = url + "arquivos/postFotoBase64";
+            Utils.uploadImagemBase64(urlDados, getDiretorioDeSalvamento(contato.getUriFoto()));
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            load.dismiss();
         }
     }
 }

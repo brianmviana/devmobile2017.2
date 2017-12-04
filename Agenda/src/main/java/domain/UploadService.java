@@ -14,15 +14,12 @@ public class UploadService {
 			throw new IllegalArgumentException("Parâmetros inválidos");
 		}
 		File tmpDir = new File("C:" + File.separator + "upload");
-		if (!tmpDir.exists()) {
-			// Cria a pasta carros se não existe
+		if (!tmpDir.exists()) {			
 			tmpDir.mkdir();
 		}
-		// Cria o arquivo
 		File file = new File(tmpDir, fileName);
-		// Abre a OutputStream para escrever no arquivo
+
 		FileOutputStream out = new FileOutputStream(file);
-		// Escreve os dados no arquivo
 		byte[] buffer = new byte[4096];
 		int bytesRead = -1;
 
@@ -31,7 +28,6 @@ public class UploadService {
 		}
 		in.close();
 		out.close();
-		// Retorna o caminho do arquivo
 		String path = file.getAbsolutePath();
 		return path;
 	}
