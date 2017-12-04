@@ -1,0 +1,13 @@
+Windows
+ - Criar uma pasta em C:\upload no Windows.
+ - Copiar as imagens para essa pasta.
+ - Adicionar permissão de escrita e leitura para TODOS.
+
+Linux
+ - Criar pasta no Linux com o nome upload.
+ - Copiar as imagens para essa pasta.
+ - Adicionar permissão de escrita e leitura: chmod -R a+rwX /upload.
+ - Na classe UploadService.java do WebService, alterar a variável tmpDir para o diretório criado.
+	
+
+
