@@ -84,6 +84,10 @@ public class ContatoDAO {
 
     public long inserirContato(Contato contato) {
         ContentValues values = new ContentValues();
+
+        if (contato.getId() > 0) {
+            values.put(DatabaseHelper.Contato._ID, contato.getId());
+        }
         values.put(DatabaseHelper.Contato.NOME, contato.getNome());
         values.put(DatabaseHelper.Contato.CELULAR, contato.getCelular());
         values.put(DatabaseHelper.Contato.EMAIL, contato.getEmail());

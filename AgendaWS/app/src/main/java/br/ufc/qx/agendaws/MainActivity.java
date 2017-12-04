@@ -228,16 +228,16 @@ public class MainActivity extends Activity implements
         protected List<Contato> doInBackground(Long... ids) {
             List<Contato> contatos = new ArrayList<>();
             if (ids.length == 0) {
-                contatos = Utils.getListaContatosJson(url, "contatos");
+                contatos = WebServiceUtils.getListaContatosJson(url, "contatos");
                 for (Contato contato : contatos) {
                     String path = getDiretorioDeSalvamento(contato.getUriFoto()).getPath();
-                    Utils.downloadImagemBase64(url + "arquivos", path, contato.getId());
+                    WebServiceUtils.downloadImagemBase64(url + "arquivos", path, contato.getId());
                     contato.setUriFoto(path);
                 }
             } else {
-                Contato contato = Utils.getContatoJson(url, "contatos", ids[0]);
+                Contato contato = WebServiceUtils.getContatoJson(url, "contatos", ids[0]);
                 String path = getDiretorioDeSalvamento(contato.getUriFoto()).getPath();
-                Utils.downloadImagemBase64(url + "arquivos", path, contato.getId());
+                WebServiceUtils.downloadImagemBase64(url + "arquivos", path, contato.getId());
                 contato.setUriFoto(path);
                 contatos.add(contato);
             }
@@ -256,7 +256,12 @@ public class MainActivity extends Activity implements
                         Toast.LENGTH_LONG).show();
             } else {
                 for (Contato contato : contatos) {
-                    contatoDAO.inserirContato(contato);
+                    Contato c = contatoDAO.buscarContatoPorId(contato.getId());
+                    if (c != null) {
+                        contatoDAO.atualizarContato(contato);
+                    } else {
+                        contatoDAO.inserirContato(contato);
+                    }
                 }
             }
             load.dismiss();
@@ -274,9 +279,9 @@ public class MainActivity extends Activity implements
         protected Void doInBackground(Contato... contatos) {
             Contato contato = contatos[0];
             String urlDados = url + "contatos";
-            Utils.sendContatoJson(urlDados, contato);
+            WebServiceUtils.sendContatoJson(urlDados, contato);
             urlDados = url + "arquivos/postFotoBase64";
-            Utils.uploadImagemBase64(urlDados, getDiretorioDeSalvamento(contato.getUriFoto()));
+            WebServiceUtils.uploadImagemBase64(urlDados, getDiretorioDeSalvamento(contato.getUriFoto()));
             return null;
         }
 
