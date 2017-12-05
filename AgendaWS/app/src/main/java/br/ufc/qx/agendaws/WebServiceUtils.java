@@ -1,7 +1,6 @@
 package br.ufc.qx.agendaws;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.*;
 import android.util.Base64;
 
 import com.google.gson.*;
@@ -16,55 +15,64 @@ import java.util.*;
 
 public class WebServiceUtils {
 
-    public static Contato getContatoJson(String url, String path, long id) {
-        Contato contato = null;
-        try {
-            String json = getJSONFromAPI(url + path + "/" + id);
-            Gson gson = new Gson();
-            contato = gson.fromJson(json, Contato.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return contato;
+    private ArrayList<Contato> contatos;
+    private String respostaServidor;
+
+    public WebServiceUtils() {
+        this.contatos = new ArrayList<>();
+        this.respostaServidor = "";
     }
 
-    public static List<Contato> getListaContatosJson(String url, String path) {
-        ArrayList<Contato> contatos = null;
-        try {
-            String json = getJSONFromAPI(url + path);
+    public ArrayList<Contato> getContatos() {
+        return contatos;
+    }
+
+    public String getRespostaServidor() {
+        return respostaServidor;
+    }
+
+    public List<Contato> getListaContatosJson(String url, String path, String id) {
+
+        String uri = url + path + "/" + id;
+        String json = getJSONFromAPI(uri);
+        if (!json.isEmpty()) {
             GsonBuilder b = new GsonBuilder().registerTypeAdapter(Date.class, new DateTypeAdapter());
             Gson gson = b.create();
             Contato[] contato = gson.fromJson(json, Contato[].class);
             contatos = new ArrayList<>(Arrays.asList(contato));
-        } catch (Exception e) {
-            e.printStackTrace();
+            respostaServidor = "Download realizado com sucesso.";
         }
         return contatos;
     }
 
-    private static String getJSONFromAPI(String url) throws IOException {
+    private String getJSONFromAPI(String url) {
         String retorno = "";
-        URL apiUrl = new URL(url);
-        HttpURLConnection conexao = (HttpURLConnection) apiUrl.openConnection();
-        conexao.setRequestMethod("GET");
-        conexao.setReadTimeout(15000);
-        conexao.setConnectTimeout(15000);
-        conexao.connect();
+        try {
+            URL apiUrl = new URL(url);
+            HttpURLConnection conexao = (HttpURLConnection) apiUrl.openConnection();
+            conexao.setRequestMethod("GET");
+            conexao.setReadTimeout(15000);
+            conexao.setConnectTimeout(15000);
+            conexao.connect();
 
-        int codigoResposta = conexao.getResponseCode();
-        InputStream is = null;
-        if (codigoResposta < HttpURLConnection.HTTP_BAD_REQUEST) {
-            is = conexao.getInputStream();
-        } else {
-            is = conexao.getErrorStream();
+            int codigoResposta = conexao.getResponseCode();
+            InputStream is = null;
+            if (codigoResposta < HttpURLConnection.HTTP_BAD_REQUEST) {
+                is = conexao.getInputStream();
+            } else {
+                is = conexao.getErrorStream();
+            }
+            retorno = converterInputStreamToString(is);
+            is.close();
+            conexao.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+            respostaServidor = "Erro ao estabelecer conexão com o servidor.";
         }
-        retorno = converterInputStreamToString(is);
-        is.close();
-        conexao.disconnect();
         return retorno;
     }
 
-    private static String converterInputStreamToString(InputStream is) throws IOException {
+    private String converterInputStreamToString(InputStream is) throws IOException {
         StringBuffer buffer = new StringBuffer();
         String linha = "";
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -75,22 +83,24 @@ public class WebServiceUtils {
         return buffer.toString();
     }
 
-    public static String downloadImagemBase64(String url, String path, long id) {
+    public String downloadImagemBase64(String url, String pathSalvamento, long id) {
         try {
             String imageBase64 = getJSONFromAPI(url + "/" + id);
             byte[] decodedString = Base64.decode(imageBase64, Base64.DEFAULT);
             Bitmap imagem = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            File file = new File(path);
+            File file = new File(pathSalvamento);
             OutputStream fOut = new FileOutputStream(file);
             imagem.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
             fOut.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception fne) {
+            fne.printStackTrace();
+            respostaServidor = "Erro ao realizar o download da imagem do servidor.";
         }
         return null;
     }
 
-    public static boolean sendContatoJson(String url, Contato contato) {
+    public boolean sendContatoJson(String url, Contato contato) {
+        String retorno = null;
         try {
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(Date.class, new DateTypeAdapter());
@@ -116,22 +126,20 @@ public class WebServiceUtils {
                 is = conexao.getInputStream();
             } else {
                 is = conexao.getErrorStream();
+                respostaServidor = "Resposta inválida do servidor.";
             }
-            String retorno = converterInputStreamToString(is);
+            respostaServidor = converterInputStreamToString(is);
             is.close();
             conexao.disconnect();
             return true;
-        } catch (ProtocolException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            respostaServidor = "Erro ao estabelecer conexão com o servidor.";
         }
         return false;
     }
 
-    public static boolean uploadImagemBase64(String url, File foto) {
+    public boolean uploadImagemBase64(String url, File foto) {
         try {
             byte[] byteArray = loadFile(foto);
             String encoded = Base64.encodeToString(loadFile(foto), Base64.DEFAULT);
@@ -168,22 +176,25 @@ public class WebServiceUtils {
                 is = conexao.getInputStream();
             } else {
                 is = conexao.getErrorStream();
+                respostaServidor = "Resposta inválida do servidor.";
             }
-            String retorno = converterInputStreamToString(is);
+            String resposta = converterInputStreamToString(is);
+            if (resposta.contains("OK")) {
+                respostaServidor = "Arquivo enviado com sucesso.";
+            } else {
+                respostaServidor = "Erro ao enviar arquivo para servidor.";
+            }
             is.close();
             conexao.disconnect();
             return true;
-        } catch (ProtocolException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            respostaServidor = "Erro ao estabelecer conexão com o servidor.";
         }
         return false;
     }
 
-    private static byte[] loadFile(File file) throws IOException {
+    private byte[] loadFile(File file) throws IOException {
         InputStream is = new FileInputStream(file);
         long length = file.length();
         byte[] bytes = new byte[(int) length];
@@ -197,7 +208,7 @@ public class WebServiceUtils {
         return bytes;
     }
 
-    private static String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+    private String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
         for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -214,7 +225,7 @@ public class WebServiceUtils {
         return result.toString();
     }
 
-    private static class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+    private class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
         private final DateFormat dateFormat;
 

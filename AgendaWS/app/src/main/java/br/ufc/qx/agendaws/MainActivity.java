@@ -218,75 +218,64 @@ public class MainActivity extends Activity implements
         }
     }
 
-    private class DownloadContatos extends AsyncTask<Long, Void, List<Contato>> {
+    private class DownloadContatos extends AsyncTask<Long, Void, WebServiceUtils> {
         @Override
         protected void onPreExecute() {
             load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...", "Recuperando Informações do Servidor...");
         }
 
         @Override
-        protected List<Contato> doInBackground(Long... ids) {
-            List<Contato> contatos = new ArrayList<>();
-            if (ids.length == 0) {
-                contatos = WebServiceUtils.getListaContatosJson(url, "contatos");
-                for (Contato contato : contatos) {
-                    String path = getDiretorioDeSalvamento(contato.getUriFoto()).getPath();
-                    WebServiceUtils.downloadImagemBase64(url + "arquivos", path, contato.getId());
-                    contato.setUriFoto(path);
-                }
-            } else {
-                Contato contato = WebServiceUtils.getContatoJson(url, "contatos", ids[0]);
+        protected WebServiceUtils doInBackground(Long... ids) {
+            WebServiceUtils webService = new WebServiceUtils();
+            String id = (ids != null && ids.length == 1) ? ids[0].toString() : "";
+            List<Contato> contatos = webService.getListaContatosJson(url, "contatos", id);
+            for (Contato contato : contatos) {
                 String path = getDiretorioDeSalvamento(contato.getUriFoto()).getPath();
-                WebServiceUtils.downloadImagemBase64(url + "arquivos", path, contato.getId());
+                webService.downloadImagemBase64(url + "arquivos", path, contato.getId());
                 contato.setUriFoto(path);
-                contatos.add(contato);
             }
-            return contatos;
+            return webService;
         }
 
         @Override
-        protected void onPostExecute(List<Contato> contatos) {
-            if (contatos == null) {
-                Toast.makeText(getApplicationContext(),
-                        "Tivemos um problema ao recuperar contatos da nuvem",
-                        Toast.LENGTH_LONG).show();
-            } else if (contatos.isEmpty()) {
-                Toast.makeText(getApplicationContext(),
-                        "Nenhum contato cadastrado na nuvem",
-                        Toast.LENGTH_LONG).show();
-            } else {
-                for (Contato contato : contatos) {
-                    Contato c = contatoDAO.buscarContatoPorId(contato.getId());
-                    if (c != null) {
-                        contatoDAO.atualizarContato(contato);
-                    } else {
-                        contatoDAO.inserirContato(contato);
-                    }
+        protected void onPostExecute(WebServiceUtils webService) {
+            for (Contato contato : webService.getContatos()) {
+                Contato c = contatoDAO.buscarContatoPorId(contato.getId());
+                if (c != null) {
+                    contatoDAO.atualizarContato(contato);
+                } else {
+                    contatoDAO.inserirContato(contato);
                 }
             }
             load.dismiss();
+            Toast.makeText(getApplicationContext(), webService.getRespostaServidor(), Toast.LENGTH_LONG).show();
             carregarDados();
         }
     }
 
-    private class UploadJson extends AsyncTask<Contato, Void, Void> {
+    private class UploadJson extends AsyncTask<Contato, Void, WebServiceUtils> {
         @Override
         protected void onPreExecute() {
             load = ProgressDialog.show(MainActivity.this, "Por favor Aguarde ...", "Recuperando Informações do Servidor...");
         }
 
         @Override
-        protected Void doInBackground(Contato... contatos) {
+        protected WebServiceUtils doInBackground(Contato... contatos) {
+            WebServiceUtils webService = new WebServiceUtils();
             Contato contato = contatos[0];
             String urlDados = url + "contatos";
-            WebServiceUtils.sendContatoJson(urlDados, contato);
-            urlDados = url + "arquivos/postFotoBase64";
-            WebServiceUtils.uploadImagemBase64(urlDados, getDiretorioDeSalvamento(contato.getUriFoto()));
-            return null;
+            if (webService.sendContatoJson(urlDados, contato)){
+                urlDados = url + "arquivos/postFotoBase64";
+                webService.uploadImagemBase64(urlDados, getDiretorioDeSalvamento(contato.getUriFoto()));
+            }
+            return webService;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(WebServiceUtils webService) {
+            Toast.makeText(getApplicationContext(),
+                    webService.getRespostaServidor(),
+                    Toast.LENGTH_LONG).show();
             load.dismiss();
         }
     }
