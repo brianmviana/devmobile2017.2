@@ -6,6 +6,6 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/webapp/WEB-INF"/>
         <property name="java-output-path" value="/Agenda/target/classes"/>
-        <property name="context-root" value="WebService"/>
+        <property name="context-root" value="Agenda"/>
     </wb-module>
 </project-modules>

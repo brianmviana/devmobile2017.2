@@ -42,7 +42,7 @@ public class FileResource {
 		String imagemBase64 = "";
 		try {
 			Denuncia d = denunciaService.buscarPorId(id);
-			String SAVE_DIR = "C:" + File.separator + "upload";
+			String SAVE_DIR = context.getInitParameter("diretorioUpload");
 			String filePath = SAVE_DIR + File.separator + d.getUriMidia();
 			imagemBase64 = UploadService.encodeFileToBase64Binary(filePath);
 		} catch (Exception e) {

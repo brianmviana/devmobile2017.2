@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Base64;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -14,6 +15,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import domain.Contato;
@@ -25,6 +27,9 @@ import domain.UploadService;
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class FileResource {
+
+	@Context
+	private ServletContext context;
 	private ContatoService contatoService = new ContatoService();
 
 	@GET
@@ -33,7 +38,7 @@ public class FileResource {
 		String imagemBase64 = "";
 		try {
 			Contato c = contatoService.buscarPorId(id);
-			String SAVE_DIR = "C:" + File.separator + "upload";
+			String SAVE_DIR = context.getInitParameter("diretorioUpload");
 			String filePath = SAVE_DIR + File.separator + c.getUriFoto();
 			imagemBase64 = UploadService.encodeFileToBase64Binary(filePath);
 		} catch (Exception e) {
@@ -52,7 +57,7 @@ public class FileResource {
 				byte[] bytes = Base64.getMimeDecoder().decode(base64);
 				InputStream in = new ByteArrayInputStream(bytes);
 				// Faz o upload (salva o arquivo em uma pasta)
-				String path = UploadService.upload(fileName, in);
+				String path = UploadService.upload(context.getInitParameter("diretorioUpload"), fileName, in);
 				System.out.println("Arquivo: " + path);
 				// OK
 				return Response.Ok("Arquivo recebido com sucesso");

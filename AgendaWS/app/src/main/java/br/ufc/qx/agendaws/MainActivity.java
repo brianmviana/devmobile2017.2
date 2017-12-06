@@ -33,7 +33,7 @@ public class MainActivity extends Activity implements
         AdapterView.OnItemClickListener,
         MenuDialogFragment.NotificarEscutadorDoDialog, SimpleAdapter.ViewBinder {
 
-    private final String url = "http://192.168.25.9:8080/WebService/rest/";
+    private final String url = "http://10.0.2.2:8080/Agenda/rest/";
     private boolean permisaoInternet = false;
     private SimpleAdapter adapter;
     private ListView listView;

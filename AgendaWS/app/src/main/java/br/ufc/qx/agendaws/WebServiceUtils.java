@@ -1,16 +1,40 @@
 package br.ufc.qx.agendaws;
 
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
-import java.net.*;
-import java.text.*;
-import java.util.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class WebServiceUtils {
@@ -36,11 +60,16 @@ public class WebServiceUtils {
         String uri = url + path + "/" + id;
         String json = getJSONFromAPI(uri);
         if (!json.isEmpty()) {
-            GsonBuilder b = new GsonBuilder().registerTypeAdapter(Date.class, new DateTypeAdapter());
-            Gson gson = b.create();
-            Contato[] contato = gson.fromJson(json, Contato[].class);
-            contatos = new ArrayList<>(Arrays.asList(contato));
-            respostaServidor = "Download realizado com sucesso.";
+            try {
+                GsonBuilder b = new GsonBuilder().registerTypeAdapter(Date.class, new DateTypeAdapter());
+                Gson gson = b.create();
+                Contato[] contato = gson.fromJson(json, Contato[].class);
+                contatos = new ArrayList<>(Arrays.asList(contato));
+                respostaServidor = "Download realizado com sucesso.";
+            } catch (Exception e) {
+                e.printStackTrace();
+                respostaServidor = "Erro ao processar JSON do servidor.";
+            }
         }
         return contatos;
     }
@@ -59,10 +88,11 @@ public class WebServiceUtils {
             InputStream is = null;
             if (codigoResposta < HttpURLConnection.HTTP_BAD_REQUEST) {
                 is = conexao.getInputStream();
+                retorno = converterInputStreamToString(is);
             } else {
                 is = conexao.getErrorStream();
+                respostaServidor = "Verifique a URL de conexão com o servidor. Erro: " + codigoResposta;
             }
-            retorno = converterInputStreamToString(is);
             is.close();
             conexao.disconnect();
         } catch (Exception e) {
@@ -124,11 +154,11 @@ public class WebServiceUtils {
             InputStream is = null;
             if (codigoResposta < HttpURLConnection.HTTP_BAD_REQUEST) {
                 is = conexao.getInputStream();
+                respostaServidor = converterInputStreamToString(is);
             } else {
                 is = conexao.getErrorStream();
-                respostaServidor = "Resposta inválida do servidor.";
+                respostaServidor = "Verifique a URL de conexão com o servidor. Erro: " + codigoResposta;
             }
-            respostaServidor = converterInputStreamToString(is);
             is.close();
             conexao.disconnect();
             return true;
@@ -142,7 +172,7 @@ public class WebServiceUtils {
     public boolean uploadImagemBase64(String url, File foto) {
         try {
             byte[] byteArray = loadFile(foto);
-            String encoded = Base64.encodeToString(loadFile(foto), Base64.DEFAULT);
+            String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
             HashMap<String, String> parametros = new HashMap<>();
 
             String nomeArquivo = foto.getName();
@@ -227,24 +257,21 @@ public class WebServiceUtils {
 
     private class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
-        private final DateFormat dateFormat;
-
-        public DateTypeAdapter() {
-            dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        }
-
         @Override
         public synchronized JsonElement serialize(Date date, Type type,
                                                   JsonSerializationContext jsonSerializationContext) {
-            return new JsonPrimitive(dateFormat.format(date).toString());
+            return new JsonPrimitive(date.getTime());
         }
 
         @Override
         public synchronized Date deserialize(JsonElement jsonElement, Type type,
                                              JsonDeserializationContext jsonDeserializationContext) {
-            Date data = new Date(Long.parseLong(jsonElement.getAsString()));
-            return data;
+            try {
+                Date data = new Date(Long.parseLong(jsonElement.getAsString()));
+                return data;
+            } catch (Exception e) {
+                return new Date();
+            }
         }
     }
 }

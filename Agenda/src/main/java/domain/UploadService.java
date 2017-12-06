@@ -9,12 +9,12 @@ import java.io.InputStream;
 import com.sun.jersey.core.util.Base64;
 
 public class UploadService {
-	public static String upload(String fileName, InputStream in) throws IOException {
+	public static String upload(String path, String fileName, InputStream in) throws IOException {
 		if (fileName == null || in == null) {
 			throw new IllegalArgumentException("Parâmetros inválidos");
 		}
-		File tmpDir = new File("C:" + File.separator + "upload");
-		if (!tmpDir.exists()) {			
+		File tmpDir = new File(path);
+		if (!tmpDir.exists()) {
 			tmpDir.mkdir();
 		}
 		File file = new File(tmpDir, fileName);
@@ -28,8 +28,8 @@ public class UploadService {
 		}
 		in.close();
 		out.close();
-		String path = file.getAbsolutePath();
-		return path;
+		String path2 = file.getAbsolutePath();
+		return path2;
 	}
 
 	public static String encodeFileToBase64Binary(String fileName) throws IOException {
