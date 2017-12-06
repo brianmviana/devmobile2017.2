@@ -21,6 +21,11 @@ public class DenunciaService {
 		this.mensagemErroExclusao = "Erro ao excluir o item do tipo " + Denuncia.class.getName() + ".";
 	}
 
+	public List<Denuncia> getLista() {
+		lista = listar();
+		return lista;
+	}
+
 	public Denuncia salvar(Denuncia denuncia) {
 		Denuncia d = this.buscarPorId(denuncia.getId());
 		if (d != null) {
