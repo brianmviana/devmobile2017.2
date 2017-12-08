@@ -40,10 +40,10 @@ li a:hover {
 	</ul>
 	</nav>
 	<pre>
-		<a href="<%=request.getContextPath()%>/rest/denuncias">/rest/contatos</a>
-		<a href="<%=request.getContextPath()%>/rest/denuncias/1">/rest/contatos/1</a>
+		<a href="<%=request.getContextPath()%>/rest/denuncias">/rest/denuncias</a>
+		<a href="<%=request.getContextPath()%>/rest/denuncias/1">/rest/denuncias/1</a>
 		<a href="<%=request.getContextPath()%>/rest/arquivos/1">/rest/arquivos/1</a>
-		<a href="<%=request.getContextPath()%>/rest/denuncias/2">/rest/contatos/2</a>
+		<a href="<%=request.getContextPath()%>/rest/denuncias/2">/rest/denuncias/2</a>
 		<a href="<%=request.getContextPath()%>/rest/arquivos/2">/rest/arquivos/2</a>
 	</pre>
 </body>

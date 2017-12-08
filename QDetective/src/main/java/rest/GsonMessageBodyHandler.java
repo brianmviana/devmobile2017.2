@@ -8,12 +8,6 @@ import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Date;
-import java.util.Locale;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -27,7 +21,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -100,26 +93,21 @@ public final class GsonMessageBodyHandler implements MessageBodyWriter<Object>, 
 	}
 
 	private static class DateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
-		private final DateFormat dateFormat;
-
-		private DateTypeAdapter() {
-			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-		}
-
 		@Override
 		public synchronized JsonElement serialize(Date date, Type type,
 				JsonSerializationContext jsonSerializationContext) {
-			return new JsonPrimitive(dateFormat.format(date));
+			return new JsonPrimitive(date.getTime());
 		}
 
 		@Override
 		public synchronized Date deserialize(JsonElement jsonElement, Type type,
 				JsonDeserializationContext jsonDeserializationContext) {
 			try {
-				return dateFormat.parse(jsonElement.getAsString());
-			} catch (ParseException e) {
-				throw new JsonParseException(e);
+				Long time = Long.parseLong(jsonElement.getAsString());
+				return new Date(time);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new Date();
 			}
 		}
 	}
