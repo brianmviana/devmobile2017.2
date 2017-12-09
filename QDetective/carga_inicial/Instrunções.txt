@@ -1,0 +1,14 @@
+Windows
+ - Criar uma pasta em C:\upload no Windows.
+ - Adicionar o path c:\upload no web.xml
+ - Copiar as imagens para essa pasta.
+ - Adicionar permissão de escrita e leitura para TODOS.
+
+Linux
+ - Criar pasta no Linux: /midia.
+ - Adicionar o path /midia no web.xml
+ - Copiar as imagens para essa pasta.
+ - Adicionar permissão de escrita e leitura: chmod -R a+rwX /midia.
+	
+
+

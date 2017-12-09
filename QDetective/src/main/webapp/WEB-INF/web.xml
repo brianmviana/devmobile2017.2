@@ -21,6 +21,6 @@
 	</welcome-file-list>
 	<context-param>
 		<param-name>diretorioUpload</param-name>
-		<param-value>C:\upload</param-value>
+		<param-value>/home/hanibal_ce80/midia</param-value>
 	</context-param>
 </web-app>
