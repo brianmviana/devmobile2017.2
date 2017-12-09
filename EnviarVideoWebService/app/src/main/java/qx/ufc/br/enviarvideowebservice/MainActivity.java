@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -57,6 +58,7 @@ public class MainActivity extends Activity {
         visualizarButton = findViewById(R.id.visualizar);
 
         categoriaSpinner.setAdapter(new ArrayAdapter<Categoria>(this, android.R.layout.simple_spinner_item, Categoria.values()));
+        categoriaSpinner.setSelection(0, true);
         possuiCartaoSD = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
     }
 
@@ -215,6 +217,7 @@ public class MainActivity extends Activity {
             }
             return webService;
         }
+
         @Override
         protected void onPostExecute(WebServiceUtils webService) {
             Toast.makeText(getApplicationContext(),
