@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.sun.jersey.core.util.Base64;
+import java.util.Base64;
 
 public class UploadService {
 	public static String upload(String path, String fileName, InputStream in) throws IOException {
@@ -35,7 +35,7 @@ public class UploadService {
 	public static String encodeFileToBase64Binary(String fileName) throws IOException {
 		File file = new File(fileName);
 		byte[] bytes = loadFile(file);
-		byte[] encoded = Base64.encode(bytes);
+		byte[] encoded = Base64.getMimeEncoder().encode(bytes);
 		String encodedString = new String(encoded);
 		return encodedString;
 	}
