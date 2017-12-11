@@ -26,12 +26,7 @@ public class DenunciaService {
 		return lista;
 	}
 
-	public Denuncia salvar(Denuncia denuncia) {
-		Denuncia d = this.buscarPorId(denuncia.getId());
-		if (d != null) {
-			this.atualizar(denuncia);
-			return denuncia;
-		}
+	public Denuncia salvar(Denuncia denuncia) {	
 		try {
 			denuncia.setUriMidia(resolverNomeArquivo(denuncia.getUriMidia()));
 			em.persist(denuncia);

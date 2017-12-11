@@ -44,6 +44,11 @@ public class DenunciaResource {
 
 	@POST
 	public Response post(Denuncia d) {
+		if (d.getId() != null && d.getId() > 0 && denunciaService.buscarPorId(d.getId()) != null) {
+			denunciaService.atualizar(d);
+			return Response.Ok("Denuncia atualizado com sucesso");
+		}
+
 		denunciaService.salvar(d);
 		return Response.Ok("Denuncia salvo com sucesso");
 	}

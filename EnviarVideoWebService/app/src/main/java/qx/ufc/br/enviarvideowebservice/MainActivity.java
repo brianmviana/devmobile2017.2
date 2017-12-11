@@ -33,7 +33,8 @@ import java.util.Calendar;
 
 public class MainActivity extends Activity {
 
-    private final String url = "http://192.168.1.3:8080/QDetective/rest/";
+    private final String url = "http://35.226.50.35/QDetective/rest/";
+    //private final String url = "http://10.0.2.2:8080/QDetective/rest/";
     private boolean permisaoInternet = false;
     private static final int CAPTURAR_VIDEO = 1;
     private Uri uri;
@@ -242,7 +243,6 @@ public class MainActivity extends Activity {
         getPermissaoDaInternet();
         if (permisaoInternet) {
             Denuncia denuncia = new Denuncia();
-            denuncia.setId(0);
             denuncia.setData(Calendar.getInstance().getTime());
             denuncia.setDescricao(descricaoEditText.getText().toString());
             denuncia.setUsuario(usuarioEditText.getText().toString());
